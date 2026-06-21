@@ -29,13 +29,13 @@ Making this distinction explicit prevents:
 
 ### Article I: [Your Primary Artifact Principle]
 
-**Example (LaTeX workflows):** Beamer `.tex` is authoritative; Quarto `.qmd` derives from it.
+**Example (Python/Marimo workflows):** Marimo `.py` notebooks are authoritative; exported tables/figures derive from them.
+
+**Example (LaTeX workflows):** Beamer `.tex` is authoritative; compiled PDFs derive from it.
 
 **Example (R workflows):** Analysis scripts are authoritative; reports derive from them.
 
-**Example (Jupyter workflows):** Notebooks are authoritative; exported HTML derives from them.
-
-**Example (multi-format):** Source documents (`.qmd`, `.Rmd`) are authoritative; all outputs (HTML, PDF, Word) derive from them.
+**Example (multi-format):** Source documents are authoritative; all outputs (PDF, HTML, Word) derive from them.
 
 **Why this matters:** Prevents circular dependencies and merge conflicts.
 

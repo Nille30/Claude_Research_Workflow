@@ -9,7 +9,7 @@ effort: medium
 
 # /new-skill — Author a Convention-Compliant Skill
 
-Scaffold a new skill the way this template's gold-standard skills are written: a **deep module behind a simple interface** (Ousterhout, *A Philosophy of Software Design* — "deep modules": a small surface that hides substantial implementation). The user supplies a fuzzy intent; this skill interviews it into a tight spec, then writes `.claude/skills/<name>/SKILL.md` with frontmatter and body that are mutually consistent — so `check-skill-integrity.py` and `check-surface-sync.sh` pass without a second pass.
+Scaffold a new skill the way this template's gold-standard skills are written: a **deep module behind a simple interface** (Ousterhout, *A Philosophy of Software Design* — "deep modules": a small surface that hides substantial implementation). The user supplies a fuzzy intent; this skill interviews it into a tight spec, then writes `.claude/skills/<name>/SKILL.md` with frontmatter and body that are mutually consistent — so `check-skill-integrity.py` passes without a second pass.
 
 Adapted from the *write-a-skill* pattern in [mattpocock/skills](https://github.com/mattpocock/skills), reshaped to this repo's frontmatter, section, and gate conventions.
 
@@ -60,27 +60,27 @@ Write `.claude/skills/<name>/SKILL.md` from the template, with these gold-standa
 
 Run `python3 scripts/check-skill-integrity.py --verbose` and fix any P0/P1 before declaring done.
 
-### Phase 4 — Remind: register the surface (table-row gate)
+### Phase 4 — Remind: register the new skill
 
-The skill is NOT discoverable to a reader until it is listed. `check-surface-sync.sh` runs a **table-row gate**: the `<!-- surface-sync-table: skills -->` tables in `README.md` and `CLAUDE.md` must have exactly one data row per skill on disk. Adding a skill without a row fails the gate.
+The skill is NOT discoverable to a reader until it is listed. Add the new skill to the grouped skill list in `CLAUDE.md` (and `README.md`).
 
 REMIND the user to:
 
-1. Add a row to the **CLAUDE.md** "Skills Quick Reference" table: `` | `/<name> [args]` | <what it does> | ``.
-2. Add a row to the **README.md** skills table: `` | `/<name>` | <what it does> | ``.
-3. Run `./scripts/check-surface-sync.sh` and `python3 scripts/check-skill-integrity.py` — both must exit 0.
+1. Add the new skill to the grouped skill list in the **CLAUDE.md** "Skills Quick Reference".
+2. Add the new skill to the **README.md** skills list.
+3. Run `python3 scripts/check-skill-integrity.py` — it must exit 0.
 
-Print the two ready-to-paste rows so the user can drop them in.
+Print the ready-to-paste entries so the user can drop them in.
 
 ## Output / report format
 
 - A new file at `.claude/skills/<name>/SKILL.md`.
-- A chat summary: the resolved name, the design brief, the gate results (integrity + a reminder that surface-sync still needs the two table rows), and the two paste-ready table rows.
+- A chat summary: the resolved name, the design brief, the gate results (integrity + a reminder to register the skill in the CLAUDE.md / README.md skill lists), and the paste-ready list entries.
 - With `--dry-run`: emit the proposed SKILL.md to chat only and write nothing.
 
 ## Exit behavior
 
-- **Skill written, gates green:** exit 0 with the path, the two table rows, and the explicit "now add those rows + run the two checks" reminder.
+- **Skill written, gates green:** exit 0 with the path, the paste-ready list entries, and the explicit "now register those entries + run the integrity check" reminder.
 - **Name collision or non-kebab-case:** stop in Phase 0 with the conflict named; write nothing.
 - **`check-skill-integrity.py` reports P0/P1:** fix in-place and re-run before returning; never hand back a skill that fails its own gate.
 - **`--dry-run`:** print the draft, write nothing, exit 0.
@@ -88,7 +88,7 @@ Print the two ready-to-paste rows so the user can drop them in.
 ## Flags
 
 - `--from-learn` — Seed the interview from an existing `/learn`-style stub (or the current session's discovery) and upgrade it into a full convention-compliant skill rather than starting blank.
-- `--dry-run` — Produce the SKILL.md content in chat for review without writing it to disk or touching any surface table.
+- `--dry-run` — Produce the SKILL.md content in chat for review without writing it to disk or touching any skill list.
 
 ## Cross-references
 
@@ -96,11 +96,11 @@ Print the two ready-to-paste rows so the user can drop them in.
 - [`.claude/skills/learn/SKILL.md`](../learn/SKILL.md) — capture a session discovery (the lighter sibling); `--from-learn` upgrades its output.
 - [`.claude/skills/coauthor-brief/SKILL.md`](../coauthor-brief/SKILL.md) — a gold-standard skill to imitate (interview → write → flags → exit-behavior shape).
 - [`.claude/rules/orchestrator-protocol.md`](../../rules/orchestrator-protocol.md) — why the interview collects all interactivity *before* writing.
-- `.claude/scripts/` and `scripts/check-skill-integrity.py` / `scripts/check-surface-sync.sh` — the gates this skill is built to pass on the first try.
+- `.claude/scripts/` and `scripts/check-skill-integrity.py` — the gate this skill is built to pass on the first try.
 
 ## What this skill does NOT do
 
 - **Capture a session discovery** — that is [`/learn`](../learn/SKILL.md). This skill designs an interface; `/learn` records a finding.
-- **Edit the README / CLAUDE.md surface tables for you.** It *prints* the two rows and reminds you; registering them (and re-running `./scripts/check-surface-sync.sh`) is a deliberate human step so the surface gate is never silently satisfied.
+- **Edit the README / CLAUDE.md skill lists for you.** It *prints* the entries and reminds you; registering them is a deliberate human step so the skill list is never silently changed.
 - **Write agents, rules, or hooks.** It scaffolds a skill only; an agent goes in `.claude/agents/`, a rule in `.claude/rules/`.
 - **Commit anything.** Branch / PR / merge is [`/commit`](../commit/SKILL.md)'s job.

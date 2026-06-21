@@ -21,15 +21,15 @@ Produce the deposit an economist hands a journal at acceptance: a directory tree
 
 ## Inputs
 
-- `$0` — path to the manuscript (`.tex`, `.qmd`, `.md`, `.pdf`). Required (the source of the Table/Figure inventory).
-- `$1` — outputs directory. Defaults to `scripts/R/_outputs/`. Recognised alternatives: `scripts/stata/_outputs/`, `scripts/python/_outputs/`, `_targets/objects/`.
+- `$0` — path to the manuscript (`.tex`, `.md`, `.pdf`). Required (the source of the Table/Figure inventory).
+- `$1` — outputs directory. Defaults to `scripts/R/_outputs/`. Recognised alternatives: `scripts/python/_outputs/`, `_targets/objects/`.
 
 ## Workflow
 
 ### Phase 0: Pre-flight — detect language(s) and outputs
 
-1. Detect the analysis language(s) by scanning for `scripts/R/*.R` (+ `renv.lock` / `DESCRIPTION`), `scripts/stata/*.do`, `scripts/python/*.py` (+ `requirements.txt` / `environment.yml` / `pyproject.toml`). A project may be **polyglot** — record all detected languages.
-2. Locate the outputs directory (`$1`) and the one-command entry point (`00_run_all.R`, `99_run_all.do`, `run.py`, `Makefile`). If none exists, flag it — DCAS requires a single master script.
+1. Detect the analysis language(s) by scanning for `scripts/python/*.py` (+ `requirements.txt` / `environment.yml` / `pyproject.toml` / `uv.lock`), `scripts/R/*.R` (+ `renv.lock` / `DESCRIPTION`). A project may be **polyglot** — record all detected languages.
+2. Locate the outputs directory (`$1`) and the one-command entry point (`run.py`, `00_run_all.R`, `Makefile`). If none exists, flag it — DCAS requires a single master script.
 3. If `quality_reports/passports/<paper-slug>.yaml` exists, load it; its `claims:` entries are the authoritative Table/Figure → `source_file:source_line` map for Phase 1.
 
 ### Phase 1: Generate the standard replication README
@@ -39,7 +39,7 @@ Write `replication_package/README.md` (the AEA template, fields below). Leave a 
 - **Overview / paper citation** — title, authors, abstract one-liner.
 - **Data Availability Statement** — for each dataset: public / restricted / proprietary, and whether it is redistributed in the package. This is the single most-rejected DCAS field; be explicit.
 - **Dataset manifest** — a table, one row per file: `filename | description | source (URL/citation) | access (public / DUA / purchase) | license | provided in package? (Y/N)`.
-- **Computational requirements** — OS, software + versions (R / Stata / Python), key packages, approximate runtime, RAM, any HPC/cluster need.
+- **Computational requirements** — OS, software + versions (Python / R), key packages, approximate runtime, RAM, any HPC/cluster need.
 - **Step-by-step run instructions** — the single master-script invocation, then the expected outputs.
 - **Table/Figure → script:line map** — one row per exhibit: `Exhibit | Program | Line | Output file`. Read from the passport if present; otherwise grep the manuscript for `\input{}` / `\includegraphics{}` and trace each to the producing script. This map is what a reproducer follows; it is the heart of the package.
 
@@ -47,9 +47,8 @@ Write `replication_package/README.md` (the AEA template, fields below). Leave a 
 
 Generate the dependency lockfile(s) and an environment snapshot for each detected language. Prefer [`/capture-environment`](../capture-environment/SKILL.md) if available; otherwise produce them directly:
 
+- **Python** — `pip freeze` → `requirements.txt` (or `uv export` / export the conda `environment.yml`); record `python --version`.
 - **R** — `renv::snapshot()` → `renv.lock`; `sessionInfo()` → `output/sessionInfo.txt`.
-- **Python** — `pip freeze` → `requirements.txt` (or export the conda `environment.yml`); record `python --version`.
-- **Stata** — `creturn list` / `about` → `output/stata_version.txt`; confirm every `.do` pins `version NN` (per [`stata-code-conventions.md`](../../rules/stata-code-conventions.md)).
 - **Container (recommended by DCAS for non-trivial setups)** — scaffold a `Dockerfile` pinning the base image + language version.
 
 ### Phase 3: Confirm claims reproduce before packaging
@@ -70,7 +69,7 @@ replication_package/
 ├── data/
 │   ├── raw/                 # as-obtained (or a pointer + DUA note if restricted)
 │   └── analysis/            # constructed analysis files
-├── code/                    # numbered scripts + master script (00_run_all.* / 99_run_all.do)
+├── code/                    # numbered scripts + master script (run.py / 00_run_all.*)
 └── output/                  # tables/, figures/, logs/, sessionInfo.txt, renv.lock / requirements.txt
 ```
 
@@ -90,7 +89,7 @@ Write `quality_reports/replication_package_[paper-slug].md`:
 
 ```markdown
 # Replication Package: [Paper Title]
-**Date:** [YYYY-MM-DD]  **Languages:** [R / Stata / Python]  **Deposit target:** [openICPSR / Zenodo / Dataverse]
+**Date:** [YYYY-MM-DD]  **Languages:** [Python / R]  **Deposit target:** [openICPSR / Zenodo / Dataverse]
 
 ## DCAS checklist
 | Item | Status |
@@ -123,7 +122,7 @@ replication_package/  (tree + README + checklist)
 - [`.claude/skills/audit-reproducibility/SKILL.md`](../audit-reproducibility/SKILL.md) — the Phase 3 gate; proves claims reproduce.
 - [`.claude/rules/confidential-data.md`](../../rules/confidential-data.md) — restricted-data deposit rules driving Phase 5.
 - [`templates/passport-template.yaml`](../../../templates/passport-template.yaml) — source of the Table/Figure → program:line map when present.
-- [`.claude/skills/data-analysis/SKILL.md`](../data-analysis/SKILL.md) · [`.claude/skills/stata-replication/SKILL.md`](../stata-replication/SKILL.md) — the R / Stata pipelines whose outputs this skill packages.
+- [`.claude/skills/data-analysis/SKILL.md`](../data-analysis/SKILL.md) — the analysis pipeline whose outputs this skill packages.
 - [`.claude/skills/simulation-study/SKILL.md`](../simulation-study/SKILL.md) — seeded Monte Carlo outputs are packaged the same way (seeds + per-rep raw results belong in `output/`).
 - [`.claude/skills/preregister/SKILL.md`](../preregister/SKILL.md) — for RCTs, the PAP belongs in the deposit alongside the analysis.
 

@@ -6,7 +6,7 @@ paths:
   - "**/*att_gt*.R"
   - "**/*csdid*.do"
   - "**/*drdid*"
-  - "scripts/**/*did*.qmd"
+  - "scripts/**/*did*.py"
 ---
 
 # DiD / Event-Study Conventions (Sant'Anna practitioner standard)

@@ -1,6 +1,6 @@
 # Orchestration Schemas (the review runtime's data contracts)
 
-The skills that fan out to reviewer subagents (`/seven-pass-review`, `/slide-excellence`, `/qa-quarto`, `/deep-audit`, `/review-paper --adversarial` and `--peer`) used to describe their findings as free-form markdown the synthesizer re-parsed by eye. This file is the **shared structured contract** they reduce over instead — so a synthesizer counts typed objects, a gate predicate is a deterministic check, and the same severity vocabulary means the same thing in every skill.
+The skills that fan out to reviewer subagents (`/seven-pass-review`, `/slide-excellence`, `/deep-audit`, `/review-paper --adversarial` and `--peer`) used to describe their findings as free-form markdown the synthesizer re-parsed by eye. This file is the **shared structured contract** they reduce over instead — so a synthesizer counts typed objects, a gate predicate is a deterministic check, and the same severity vocabulary means the same thing in every skill.
 
 This is a **reference**, not a runtime: a Claude Code session has no JSON validator in the loop. The schemas are the *target shape* each reviewer subagent returns (as a fenced ```yaml block at the end of its report) and the synthesizer reads. See [`.claude/rules/orchestrator-protocol.md`](../rules/orchestrator-protocol.md) for how the fan-out → reduce → judge → loop-until-dry runtime uses them.
 
@@ -48,7 +48,7 @@ scorecard:
   verdict: REVISE-MAJOR   # SUBMIT | REVISE-MINOR | REVISE-MAJOR | REJECT  (artifact-level lenses)
 ```
 
-For parity/gate skills (`qa-quarto`), the lens verdict is the hard-gate roll-up: `APPROVED` iff every hard gate passes (zero CRITICAL), else `BLOCKED`.
+For parity/gate skills, the lens verdict is the hard-gate roll-up: `APPROVED` iff every hard gate passes (zero CRITICAL), else `BLOCKED`.
 
 ## 3. Gate predicates (how `reduce` decides)
 

@@ -165,7 +165,7 @@ Notice the assumptions block. If any of those four assumptions are wrong, the us
 Blattman's original `/prompt` includes:
 
 - A **tool-routing table** that suggests dispatching to ChatGPT / Perplexity Deep Research / Gemini when those tools serve the task better. This bakes in a multi-vendor workflow not every academic forker maintains. If a user wants tool routing, they add their own table to this file.
-- A **`council` token** that dispatches the formatted prompt to Blattman's `/council` skill (his five-critic multi-model deliberation). This template doesn't ship `/council` — we have `/seven-pass-review` and `/devils-advocate` instead, which serve adjacent purposes but with different shapes. If you want the council pattern, see Pass 3 item H (`/promote-memory` five-critic council) — that's a closer fit for the template.
+- A **`council` token** that dispatches the formatted prompt to Blattman's `/council` skill (his five-critic multi-model deliberation). This template doesn't ship `/council` — we have `/seven-pass-review` instead, which serves an adjacent purpose but with a different shape. If you want the council pattern, see Pass 3 item H (`/promote-memory` five-critic council) — that's a closer fit for the template.
 
 If you fork this template and add your own multi-vendor or multi-model fan-out, extend this file with your routing rules. Keep them in this reference, not in the SKILL.md, so `/prompt` and `/prompt-only` stay aligned.
 

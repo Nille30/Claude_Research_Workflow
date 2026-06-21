@@ -2,7 +2,6 @@
 paths:
   - "CHANGELOG.md"
   - "README.md"
-  - "**/*.qmd"
   - ".claude/skills/*/SKILL.md"
   - ".claude/rules/*.md"
   - ".claude/agents/*.md"
@@ -15,11 +14,10 @@ alwaysApply: false
 
 ## What counts as a "summary paragraph"
 
-- CHANGELOG opening paragraph of a version entry (the lede before the first `###` subheading)
 - README.md tagline and section ledes
+- CLAUDE.md section ledes and the directory-map block
 - PR title and `## Summary` block
 - Skill / rule / agent frontmatter `description:` field
-- Guide `workflow-guide.qmd` section abstracts
 - MEMORY.md `[LEARN:*]` entry headlines (the single-sentence summary before the prose)
 - Any paragraph of the form "This release does X. It does not do Y. Counts are Z." — the triple-claim shape is a drift magnet
 

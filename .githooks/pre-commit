@@ -2,18 +2,16 @@
 #
 # Pre-commit quality gate for the academic-workflow template.
 #
-# This closes the "a direct `git commit` bypasses every gate" hole: the
-# gates that `/commit` runs (surface-sync + quality score) now run on EVERY
-# commit, not only when you go through the skill.
+# This closes the "a direct `git commit` bypasses the gate" hole: the
+# quality score that `/commit` runs now runs on EVERY commit, not only when
+# you go through the skill.
 #
 # Install once per clone:   ./scripts/install-hooks.sh
 # (sets core.hooksPath=.githooks so git finds this version-controlled hook.)
 #
-# It runs two gates against the STAGED changes and aborts the commit on
+# It runs one gate against the STAGED changes and aborts the commit on
 # failure:
-#   1. Surface-sync (ALWAYS): count + enumerative-table-row consistency,
-#      skill integrity, model-version currency — deterministic and fast.
-#   2. Quality score (>= 80) on staged .qmd / .tex / .R files with rubrics.
+#   - Quality score (>= 80) on staged .py / .R / .tex files with rubrics.
 #
 # Escape hatches (use sparingly; record the reason in the commit message):
 #   SKIP_QUALITY_GATE=1 git commit ...   # skip only the quality score
@@ -51,16 +49,12 @@ fi
 
 FAIL=0
 
-echo "── pre-commit: surface-sync gates ──"
-./scripts/check-surface-sync.sh
-[ $? -ne 0 ] && FAIL=1
-
 if [ "${SKIP_QUALITY_GATE:-0}" = "1" ]; then
     echo ""
     echo "── pre-commit: quality gate SKIPPED (SKIP_QUALITY_GATE=1) ──"
 else
     # Staged, added-or-modified files that have quality rubrics.
-    STAGED="$(git diff --cached --name-only --diff-filter=ACM | grep -Ei '\.(qmd|tex|R)$' || true)"
+    STAGED="$(git diff --cached --name-only --diff-filter=ACM | grep -Ei '\.(py|tex|R)$' || true)"
     if [ -n "$STAGED" ]; then
         n="$(printf '%s\n' "$STAGED" | grep -c .)"
         echo ""
@@ -82,7 +76,7 @@ else
         done <<< "$STAGED"
     else
         echo ""
-        echo "── pre-commit: no staged .qmd/.tex/.R files to score ──"
+        echo "── pre-commit: no staged .py/.tex/.R files to score ──"
     fi
 fi
 

@@ -2,7 +2,7 @@
 
 Short reference cards naming each discipline's dominant paper-type frequencies, top journals, preregistration norms, and method conventions. Read by `/research-ideation`, `/interview-me`, `/preregister`, and the `editor` agent (in `/review-paper --peer`) when the user gives a `paper_type` or domain hint without specifying a target journal.
 
-**Scope.** v1.8.0 ships two cards: **economics** and **political science**. Other social sciences (psychology, sociology, public health) are deferred to a later release. To add your own discipline, copy a card section, fill the four fields (paper-type frequencies, journals, preregistration norms, method conventions), and reference the new short-name from `journal-profiles.md` and `methods-referee.md`.
+**Scope.** Ships three cards — **economics**, **finance**, and **accounting** — the fields this template targets. To add another discipline, copy a card section, fill the four fields (paper-type frequencies, journals, preregistration norms, method conventions), and reference the new short-name from `journal-profiles.md` and `methods-referee.md`.
 
 **Maintenance.** When you add a journal profile to `journal-profiles.md`, cross-reference it here. When you add a paper type to `methods-referee.md`, cross-reference it here.
 
@@ -37,32 +37,61 @@ Short reference cards naming each discipline's dominant paper-type frequencies, 
 
 ---
 
-## Political Science (`poli-sci`)
+## Finance (`finance`)
 
 **Paper-type frequencies (rough share of empirical work in top-3 journals).**
 
 | Type | Share | Notes |
 |---|---|---|
-| Reduced-form | ~40% | Causal inference (DiD, IV, RD), observational identification. Strongest at AJPS. |
-| Survey-experiment | ~25% | Vignette, conjoint, list-experiment, factorial. Strong at AJPS, JOP; rising at APSR. |
-| Formal-theory | ~15% | Game-theoretic, mechanism-design, formal political theory. Strongest at APSR. |
-| Descriptive | ~10% | Cross-national / historical / case-study description. |
-| Theory + empirics | ~10% | Formal theory with empirical test of equilibrium predictions. |
+| Reduced-form | ~50% | Corporate-finance causal (DiD, IV, RD) + empirical asset-pricing tests. The dominant mode. |
+| Structural | ~20% | Dynamic asset pricing, structural corporate, IO-finance. |
+| Theory + empirics | ~15% | Asset-pricing/corporate theory with an empirical test. |
+| Descriptive | ~10% | New data / measurement (microstructure, fintech, text). |
+| Formal-theory | ~5% | Pure theory (continuous-time AP, contract theory). |
 
-**Dominant journals (shipped in `journal-profiles.md`).** APSR, AJPS, JOP. Subfield outlets (IO, World Politics, JOP-research-notes track) also strong.
+**Dominant journals (shipped in `journal-profiles.md`).** JF, JFE, RFS. Field outlets: JFQA, RCFS, Management Science (finance), JFI.
 
 **Preregistration norms.**
-- **Survey experiments / lab experiments / field experiments:** OSF or AsPredicted increasingly expected. **AJPS Replication Policy** (since 2015) makes replication archive mandatory at acceptance, but preregistration itself is a community norm not a hard requirement.
-- **Observational:** PAP (preanalysis plan) appearing in applied work; not yet uniform.
-- **AEA RCT Registry** is for econ; political-science field experiments more often use OSF or EGAP's repository (egap.org) — though EGAP merged its registry into OSF in 2022.
+- **Observational / archival (the bulk):** preregistration uncommon.
+- **Field / household / behavioral experiments:** AEA RCT Registry or OSF where applicable.
+- **Replication packages:** JF (AFA) and RFS (SFS) require code/data at acceptance; JFE enforces a code/data policy. WRDS is the data backbone — document pulls, don't deposit licensed raw data.
 
 **Method conventions.**
-- Significance stars: ARE used (typical floor 0.05/0.01/0.001). APSA Style Manual governs citations.
-- Standard-error reporting: clustered SEs at subject level for survey experiments, robust SEs (HC2 or HC3) standard.
-- Replication archive: AJPS Replication Policy requires deposit before acceptance; APSR and JOP recommend.
-- Code: R is dominant; Stata still common in IR / comparative; Python rising for text-as-data work.
+- Significance: stars common, but factor-zoo scrutiny means **report t-stats** (Newey-West / GMM for asset pricing); a *new factor* needs t > 3 (Harvey–Liu–Zhu).
+- Standard errors: cluster by firm and/or time (Petersen 2009); for asset-pricing tests, Newey-West / Fama-MacBeth.
+- Asset-pricing hygiene: NYSE vs. all-stock breakpoints, value- vs. equal-weighting, microcap exclusion, look-ahead/survivorship checks.
+- Code: Python and R dominant (Python is this template's default); WRDS/CRSP/Compustat the data backbone.
 
-**Cross-references.** `methods-referee.md` paper types: reduced-form, formal-theory, survey-experiment, theory+empirics, descriptive (structural is rare in poli-sci). `journal-profiles.md`: APSR, AJPS, JOP.
+**Cross-references.** `methods-referee.md` paper types: reduced-form, structural, theory+empirics, descriptive, formal-theory. `journal-profiles.md`: JF, JFE, RFS.
+
+---
+
+## Accounting (`accounting`)
+
+**Paper-type frequencies (rough share of empirical work in top-5 journals).**
+
+| Type | Share | Notes |
+|---|---|---|
+| Reduced-form | ~55% | Archival causal/association: disclosure, earnings, governance, audit, tax. |
+| Descriptive | ~15% | Measurement (earnings quality, readability, new constructs). |
+| Theory + empirics | ~15% | Analytical model + archival test (esp. RAST, JAE). |
+| Experimental | ~10% | Behavioral / JDM accounting (TAR, CAR) — use the survey-experiment lens. |
+| Formal-theory | ~5% | Analytical accounting (disclosure / contracting theory). |
+
+**Dominant journals (shipped in `journal-profiles.md`).** JAR, JAE, TAR, CAR, RAST.
+
+**Preregistration norms.**
+- **Archival (the bulk):** preregistration uncommon.
+- **Experimental accounting:** OSF / AsPredicted increasingly expected; Registered Reports appearing (JAR Registered Reports).
+- **Replication packages:** data/code increasingly requested, less uniform than econ/finance; WRDS/Compustat backbone.
+
+**Method conventions.**
+- Significance: stars conventional. Construct-validity scrutiny is high (proxies, not observables).
+- Standard errors: two-way clustered by firm and year (Petersen 2009; Gow–Ormazabal–Taylor 2010).
+- Identification: "association dressed as causation" is a desk-level concern (Roberts–Whited); expect an explicit identification strategy.
+- Code: SAS and Stata historically common; **Python/R increasingly standard (and the convention in this template)**; WRDS/Compustat backbone.
+
+**Cross-references.** `methods-referee.md` paper types: reduced-form, descriptive, theory+empirics, survey-experiment (for experiments), formal-theory. `journal-profiles.md`: JAR, JAE, TAR, CAR, RAST.
 
 ---
 
@@ -70,7 +99,7 @@ Short reference cards naming each discipline's dominant paper-type frequencies, 
 
 - **`/research-ideation`** — when the user names a topic without a discipline, the skill may infer one from context (citation style, vocabulary). The card supplies the default `paper_type` distribution to bias hypothesis generation.
 - **`/interview-me`** — Phase 1 paper-type question uses the card's frequency table to order the option list (most-likely-first per discipline).
-- **`/preregister`** — `--style` defaults to the card's preregistration-norms suggestion (e.g., `osf` for poli-sci, `aea-rct` for econ field experiments).
+- **`/preregister`** — `--style` defaults to the card's preregistration-norms suggestion (e.g., `aea-rct` for econ/finance field experiments, `osf` for experimental accounting).
 - **`editor`** (`/review-paper --peer`) — when the user gives `--peer` without naming a specific journal but with a discipline hint, the editor uses the card's "Dominant journals" list as the candidate set and asks for clarification.
 
 ---

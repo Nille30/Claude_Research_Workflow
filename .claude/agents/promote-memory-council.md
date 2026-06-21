@@ -26,7 +26,7 @@ The calling skill identifies your role in the invocation prompt: **Generality**,
 **Vote YES** when the lesson is:
 - A workflow pattern that applies across academic disciplines.
 - A design principle that other academic forkers would recognise (orchestrator pattern, plan-first, quality gates).
-- A documentation standard, a session-logging habit, a meta-governance choice.
+- A documentation standard, a session-logging habit, a governance choice.
 
 ### Staleness critic
 
@@ -74,7 +74,7 @@ For every file path, function name, command, setting, or rule referenced in the 
 
 ### Format critic
 
-**Your question:** Does the entry follow the schema in [`.claude/rules/meta-governance.md`](../rules/meta-governance.md)?
+**Your question:** Does the entry follow the schema in [`.claude/rules/memory-model.md`](../rules/memory-model.md)?
 
 **Vote NO** when:
 - Corrections aren't in `[LEARN:category] wrong → right` shape.

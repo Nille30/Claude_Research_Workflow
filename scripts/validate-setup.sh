@@ -51,14 +51,14 @@ check_optional() {
 
 echo -e "${BOLD}Required tools:${RESET}"
 check_required "Claude Code"  "claude"   "https://claude.ai/install"
+check_required "uv"           "uv"       "https://docs.astral.sh/uv/getting-started/installation/"
+check_required "Python 3"     "python3"  "https://python.org (needed for hooks; analysis runs via uv)"
 check_required "XeLaTeX"      "xelatex"  "https://tug.org/texlive/ (or MacTeX: https://tug.org/mactex/)"
-check_required "Quarto"       "quarto"   "https://quarto.org/docs/get-started/"
 check_required "git"          "git"      "https://git-scm.com/downloads"
-check_required "Python 3"     "python3"  "https://python.org (needed for hooks)"
 echo ""
 
 echo -e "${BOLD}Recommended tools:${RESET}"
-check_optional "R"            "R"        "https://www.r-project.org/"
+check_optional "R (fallback)" "R"        "https://www.r-project.org/"
 check_optional "GitHub CLI"   "gh"       "https://cli.github.com/"
 echo ""
 
@@ -124,24 +124,6 @@ else
 fi
 echo ""
 
-echo -e "${BOLD}Palette sync (LaTeX ↔ SCSS):${RESET}"
-palette_script="$(dirname "$0")/check-palette-sync.sh"
-if [ -x "$palette_script" ]; then
-    # Rely on the helper's exit code — stable contract, not text matching.
-    # 0 = in sync, 1 = divergence.
-    if "$palette_script" >/dev/null 2>&1; then
-        echo -e "  ${GREEN}✓${RESET} Preambles/header.tex ↔ Quarto/theme-template.scss agree on the core palette"
-        pass=$((pass + 1))
-    else
-        echo -e "  ${YELLOW}⚠${RESET} Palette drift — run ./scripts/check-palette-sync.sh for details"
-        warn=$((warn + 1))
-    fi
-else
-    echo -e "  ${YELLOW}⚠${RESET} scripts/check-palette-sync.sh missing or not executable — skipping"
-    warn=$((warn + 1))
-fi
-echo ""
-
 echo -e "${BOLD}Summary:${RESET} ${GREEN}${pass} passed${RESET}, ${YELLOW}${warn} warnings${RESET}, ${RED}${fail} failed${RESET}"
 echo ""
 
@@ -150,7 +132,6 @@ echo ""
 # read naturally.
 has_claude="false";  command -v claude  >/dev/null 2>&1 && has_claude="true"
 has_xelatex="false"; command -v xelatex >/dev/null 2>&1 && has_xelatex="true"
-has_quarto="false";  command -v quarto  >/dev/null 2>&1 && has_quarto="true"
 has_r="false";       command -v R       >/dev/null 2>&1 && has_r="true"
 
 if [ "$fail" -gt 0 ]; then
@@ -161,21 +142,13 @@ if [ "$fail" -gt 0 ]; then
         echo "  - Open Claude Code:                      claude"
         echo ""
         echo "  ${BOLD}Inside Claude Code${RESET} (these are slash-commands, NOT shell commands):"
-        if [ "$has_quarto" = "true" ]; then
-            echo "    /deploy HelloWorld         # render Quarto sample"
-        fi
+        echo "    /data-analysis             # start a Python/Marimo analysis (uses uv)"
         if [ "$has_xelatex" = "true" ]; then
-            echo "    /compile-latex HelloWorld  # compile Beamer sample"
-        fi
-        if [ "$has_r" = "true" ]; then
-            echo "    /data-analysis             # orchestrate R analysis"
+            echo "    /compile-latex <deck>      # compile a Beamer talk deck in Slides/"
         fi
         if [ "$has_xelatex" != "true" ]; then
             echo ""
             echo "  (Beamer workflow disabled until you install XeLaTeX: https://tug.org/texlive/)"
-        fi
-        if [ "$has_quarto" != "true" ]; then
-            echo "  (Quarto deploy disabled until you install Quarto: https://quarto.org/docs/get-started/)"
         fi
     else
         echo "  - Install Claude Code first: https://claude.ai/install"
@@ -187,8 +160,8 @@ if [ "$fail" -gt 0 ]; then
 fi
 
 echo -e "${GREEN}Setup looks good!${RESET} Next steps:"
-echo "  1. Open Claude Code in this directory:  claude"
-echo "  2. Compile the sample deck:              /compile-latex HelloWorld"
-echo "  3. Deploy the Quarto sample:             /deploy HelloWorld"
+echo "  1. Open Claude Code in this directory:        claude"
+echo "  2. Fill the [PLACEHOLDERS] at the top of CLAUDE.md"
+echo "  3. Drop data in data/raw/ and describe your first task"
 echo ""
 exit 0

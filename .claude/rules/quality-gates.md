@@ -1,8 +1,8 @@
 ---
 paths:
+  - "code/**/*.py"
+  - "**/*.R"
   - "Slides/**/*.tex"
-  - "Quarto/**/*.qmd"
-  - "scripts/**/*.R"
 ---
 
 # Quality Review & Scoring Rubrics
@@ -12,22 +12,17 @@ paths:
 ## Thresholds
 
 - **80/100 = Commit** -- good enough to save
-- **90/100 = PR** -- ready for deployment
+- **90/100 = PR** -- ready to share
 - **95/100 = Excellence** -- aspirational
 
-## Quarto Slides (.qmd)
+## Python / Marimo (.py)
 
 | Severity | Issue | Deduction |
 |----------|-------|-----------|
-| Critical | Compilation failure | -100 |
-| Critical | Equation overflow | -20 |
-| Critical | Broken citation | -15 |
-| Critical | Typo in equation | -10 |
-| Major | Text overflow | -5 |
-| Major | TikZ label overlap | -5 |
-| Major | Notation inconsistency | -3 |
-| Minor | Font size reduction | -1 per slide |
-| Minor | Long lines (>100 chars) | -1 (EXCEPT documented math formulas) |
+| Critical | Syntax error (`ast.parse`) | -100 (auto-fail) |
+| Critical | Hardcoded absolute path | -20 |
+| Major | Missing seed when randomness is used | -10 |
+| Minor | Bare `except:` | -1 |
 
 ## R Scripts (.R)
 
@@ -51,7 +46,7 @@ paths:
 
 - **Score < 80:** Halt within `/commit`. List blocking issues. User may override with an explicit natural-language signal ("commit anyway" / "skip quality gate") and a reason — the override is logged in the commit body.
 - **Score < 90:** Allow commit within `/commit`, warn. List recommendations.
-- **Direct `git commit`:** unenforced *until* you run `./scripts/install-hooks.sh`, which points `core.hooksPath` at the version-controlled `.githooks/pre-commit`. After that, every commit (skill or not) runs the surface-sync + quality (≥80) gates. Bypass sparingly with `SKIP_QUALITY_GATE=1` (quality only) or `git commit --no-verify` (all hooks); record the reason in the commit body.
+- **Direct `git commit`:** unenforced *until* you run `./scripts/install-hooks.sh`, which points `core.hooksPath` at the version-controlled `.githooks/pre-commit`. After that, every commit (skill or not) runs the quality (≥80) gate. Bypass sparingly with `SKIP_QUALITY_GATE=1` (quality only) or `git commit --no-verify` (all hooks); record the reason in the commit body.
 
 ## Quality Reports
 

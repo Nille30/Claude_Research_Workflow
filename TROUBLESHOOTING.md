@@ -8,29 +8,17 @@ Top failure modes newcomers hit, with the fix. If you're stuck somewhere else, r
 
 Claude Code isn't installed. Install it from [claude.ai/install](https://claude.ai/install) (or your OS's package manager). Then re-run `./scripts/validate-setup.sh`.
 
+### `uv: command not found`
+
+The Python toolchain is managed with **uv**. Install it (`brew install uv` on macOS, or see [docs.astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/)), then run everything through `uv run` so it uses the locked environment.
+
 ### `xelatex: command not found`
 
-No TeX Live on the system. Install MacTeX (macOS) or TeX Live (Linux/Windows). Until you do, `/compile-latex` and `/extract-tikz` are disabled; `/deploy` (Quarto) still works.
-
-### `quarto: command not found`
-
-Install Quarto from [quarto.org/docs/get-started](https://quarto.org/docs/get-started/). Until you do, `/deploy` and `/qa-quarto` are disabled; Beamer workflows still work.
+No TeX Live on the system. Install MacTeX (macOS) or TeX Live (Linux/Windows). Until you do, `/compile-latex` and `/extract-tikz` are disabled.
 
 ### `pdf2svg: command not found`
 
 Required by `/extract-tikz`. `brew install pdf2svg` (macOS) / `apt install pdf2svg` (Debian/Ubuntu) / `dnf install pdf2svg` (Fedora).
-
-### `/stata-replication` halts at "stata-mcp not registered"
-
-The Stata pipeline skill needs the [`stata-mcp`](https://github.com/SepineTam/stata-mcp) MCP server. Install once per user:
-
-```bash
-claude mcp add stata-mcp --scope user -- uvx stata-mcp
-```
-
-`uvx` is the `uv` package runner (`brew install uv` if missing). The MCP server requires a local Stata installation — it's a bridge, not a replacement. Once installed, restart your Claude Code session so the MCP server registers.
-
-Verify with `claude mcp list` — `stata-mcp` should appear with status `connected`. The skill also halts if Stata itself is not on `PATH`; the install instructions documented in [`/stata-replication`](.claude/skills/stata-replication/SKILL.md) Phase 0 cover both pre-flight checks.
 
 ### Claude keeps asking permission for every tool
 
@@ -70,13 +58,9 @@ The `.bib` key isn't in `Bibliography_base.bib`. Run `/validate-bib` to cross-ch
 
 Text exceeds the slide's printable width. Either shorten the offending content, wrap it in a `text width=...` node (for TikZ), or switch to `\resizebox`. `/visual-audit` flags these; `/proofread` does too.
 
-### Quarto render fails with `No valid input files`
+### A Beamer deck fails to compile
 
-You likely invoked `quarto render` from the wrong cwd. Run it from the repo root. `/deploy` handles this automatically.
-
-### HelloWorld.tex fails to compile
-
-`./scripts/validate-setup.sh` first. If XeLaTeX is installed, re-fork a clean copy — you may have edited the sample deck without realizing it. HelloWorld is intentionally minimal and should always compile on a fresh clone.
+Run `./scripts/validate-setup.sh` first to confirm XeLaTeX is installed. Then compile with the project preamble on the path: `TEXINPUTS=Preambles: latexmk -pdf -xelatex Slides/<deck>.tex`. Read the `.log` for the first error (an undefined control sequence or a missing `\input{}` from `results/` is the usual cause).
 
 ### `/extract-tikz` halts at prevention pre-check
 
@@ -100,12 +84,6 @@ The PreCompact hook (`.claude/hooks/pre-compact.py`) writes state to `~/.claude/
 
 The script detected issues in changed files. Either fix them (recommended) or re-run `/commit` and explicitly tell Claude **"commit anyway"** or **"skip quality gate"** with a reason — the override is logged in the commit message. (There is no `--skip-quality-gate` CLI flag; the override is a natural-language signal to the skill.)
 
-## Palette / theming
-
-### Beamer and Quarto renderings use different colors
-
-The palette contract broke. Run `./scripts/check-palette-sync.sh` — it reports which color names are missing from one surface. Fix HEX values in **both** `Preambles/header.tex` and `Quarto/theme-template.scss` to match. See `Preambles/README.md` for the full contract.
-
 ## R / data analysis
 
 ### `here::here()` resolves to the wrong directory
@@ -124,7 +102,7 @@ Mid-session permission-mode toggles override file settings until session end. Th
 
 ### `/permission-check` asks before reading `~/.claude/`
 
-That's intentional. Host-global config can contain unrelated paths and secrets. Phase A (repo-local) is automatic; Phase B (host-global, with key redaction) requires explicit confirmation. See [CHANGELOG v1.6.0 — privacy boundary](CHANGELOG.md) for context.
+That's intentional. Host-global config can contain unrelated paths and secrets. Phase A (repo-local) is automatic; Phase B (host-global, with key redaction) requires explicit confirmation.
 
 ### Seeing too many permission prompts?
 
@@ -166,21 +144,11 @@ They weren't dispositioned. The editor agent should select **two different** dis
 
 Use `--r2` / `--r3` to continue a prior review. The editor agent reloads the previous `quality_reports/peer_review_*/decision.md` and classifies each revision (addressed / partially / deferred / disagreement). If the prior decision file is missing or renamed, the chain breaks — start fresh with `--peer`.
 
-## Surface-sync gate (v1.6.0)
-
-### `/commit` fails at Step 0b with "count drift detected"
-
-`scripts/check-surface-sync.sh` detected a count mismatch (skills / agents / rules / hooks) across docs. The script reports which surface has the stale number. Fix every surface the script flags, then re-run. **Do not bypass** — the gate exists because manual `replace_all` has missed sibling phrasings three times (PRs #70/#76/#78 in v1.5.x).
-
-### Adding a new skill / agent / rule breaks the gate
-
-Expected. The gate counts `.claude/skills/` on disk vs prose assertions. After adding a skill, update the counts in README.md, CLAUDE.md (if mentioned), `guide/workflow-guide.qmd`, `docs/index.html` og:description, and `templates/skill-template.md`. The script tells you which are stale.
-
 ## Pre-Flight Reports (v1.6.0)
 
 ### Skill halts at "Pre-Flight Report failed — inputs not readable"
 
-The skill couldn't read one of its required inputs (dataset, journal profile, notation registry, `r-code-conventions.md`, etc.). Check the file path in the error, confirm permissions, and confirm that fresh forks have the expected file (e.g., `/create-lecture` has a fresh-fork fallback for the notation registry; other skills do not). Do NOT edit the skill to skip Pre-Flight — the point is to catch hallucinated variable names and missing conventions before real work starts.
+The skill couldn't read one of its required inputs (dataset, journal profile, notation registry, `r-code-conventions.md`, etc.). Check the file path in the error, confirm permissions, and confirm that fresh forks have the expected file. Do NOT edit the skill to skip Pre-Flight — the point is to catch hallucinated variable names and missing conventions before real work starts.
 
 ### Pre-Flight passes but the agent hallucinates anyway
 
@@ -238,7 +206,7 @@ Do **not** opt out when:
 
 ## `check-skill-integrity` failures
 
-The surface-sync gate now chains `check-skill-integrity.py` after the count-sync check. It runs four mechanical parity checks (frontmatter↔body tools, argument-hint↔body flags, internal anchor resolution, rule↔skill keyword parity) and reports P0/P1/P2 findings per file.
+`check-skill-integrity.py` runs four mechanical parity checks (frontmatter↔body tools, argument-hint↔body flags, internal anchor resolution, rule↔skill keyword parity) and reports P0/P1/P2 findings per file.
 
 ### P0: body invokes tool X but frontmatter allowed-tools is [...]
 

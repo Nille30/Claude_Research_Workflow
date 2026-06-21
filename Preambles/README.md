@@ -25,27 +25,13 @@ cd Slides
 TEXINPUTS=../Preambles:$TEXINPUTS xelatex -interaction=nonstopmode YourLecture.tex
 ```
 
-## The palette contract
+## The palette
 
-Color names in `header.tex` **must** match the SCSS variable names in [`../Quarto/theme-template.scss`](../Quarto/theme-template.scss) so Beamer and Quarto renderings use the same palette.
-
-The `scripts/check-palette-sync.sh` script greps both files and reports any divergence:
-
-```bash
-./scripts/check-palette-sync.sh
-```
-
-It's also invoked (non-blocking) from `./scripts/validate-setup.sh`.
-
-When you customize the palette for your project:
-
-1. Edit HEX values in both `Preambles/header.tex` (LaTeX) **and** `Quarto/theme-template.scss` (SCSS).
-2. Keep the names aligned: `primary-blue`, `primary-gold`, `highlight-yellow`, `light-bg`, `jet`, `positive`, `negative`, `neutral`, `hi-slate`, `hi-green`, `hi-red`.
-3. Run `./scripts/check-palette-sync.sh` — it should report "in sync".
+The preamble defines 11 named colors. When you customize the palette for your project, edit the HEX values in `Preambles/header.tex`. The named colors are: `primary-blue`, `primary-gold`, `highlight-yellow`, `light-bg`, `jet`, `positive`, `negative`, `neutral`, `hi-slate`, `hi-green`, `hi-red`.
 
 ## What's inside
 
-- **Palette** — 11 named colors matching the SCSS.
+- **Palette** — 11 named colors.
 - **Beamer theme assignments** — structure, titles, itemize, alert, blocks, minimal footer. Applied only under Beamer (`\@ifundefined{beamertemplate}`).
 - **TikZ libraries** — `arrows.meta, positioning, calc, decorations.pathreplacing, fit, shapes.geometric, backgrounds`.
 - **Shared TikZ styles** — `dag-node`, `decision-node`, `observed-edge`, `counterfactual-edge`, `confound-edge`, `observed-dot`, `counterfactual-dot`. Used by `templates/tikz-snippets/` and reusable in hand-written diagrams.

@@ -1,22 +1,23 @@
 ---
 paths:
   - "Figures/**/*"
-  - "Quarto/**/*.qmd"
   - "Slides/**/*.tex"
 ---
 
 # Single Source of Truth: Enforcement Protocol
 
-**The Beamer `.tex` file is the authoritative source for ALL content.** Everything else is derived.
+**The Beamer `.tex` file is the authoritative source for slide content; analysis code is the authoritative source for every reported number.** Generated artifacts are derived from these sources, never hand-edited independently.
 
 ## The SSOT Chain
 
 ```
-Beamer .tex (SOURCE OF TRUTH)
+Beamer .tex (SLIDE SOURCE OF TRUTH)
   ├── extract_tikz.tex → PDF → SVGs (derived)
-  ├── Quarto .qmd → HTML (derived)
   ├── Bibliography_base.bib (shared)
-  └── Figures/LectureN/*.rds → plotly charts (data source)
+  └── Figures/LectureN/*.rds → charts (data source)
+
+analysis code (RESULTS SOURCE OF TRUTH)
+  └── tables / figures → \input{} into paper & slides (derived)
 
 NEVER edit derived artifacts independently.
 ALWAYS propagate changes from source → derived.
@@ -26,7 +27,7 @@ ALWAYS propagate changes from source → derived.
 
 ## TikZ Freshness Protocol (MANDATORY)
 
-**Before using ANY TikZ SVG in a Quarto slide, verify it matches the current Beamer source.**
+**Before reusing ANY extracted TikZ SVG, verify it matches the current Beamer source.**
 
 ### Diff-Check Procedure
 
@@ -34,36 +35,31 @@ ALWAYS propagate changes from source → derived.
 2. Read the corresponding block from `Figures/LectureN/extract_tikz.tex`
 3. Compare EVERY coordinate, label, color, opacity, and anchor point
 4. If ANY difference exists: update `extract_tikz.tex` from Beamer, recompile, regenerate SVGs
-5. Only then reference the SVG in the QMD
 
 ### When to Re-Extract
 
 Re-extract ALL TikZ diagrams when:
 - The Beamer `.tex` file has been modified since last extraction
-- Starting a new Quarto translation
 - Any TikZ-related quality issue is reported
-- Before any commit that includes QMD changes
+- Before any commit that includes TikZ changes
 
 ---
 
-## Environment Parity (MANDATORY)
+## Results Fidelity (MANDATORY)
 
-**Every Beamer environment MUST have a CSS equivalent before translation begins.**
+**Every reported number traces to the exact cell/script that produced it.**
 
-1. Scan the Beamer source for all custom environments
-2. Check each against your theme SCSS file
-3. If ANY environment is missing from SCSS, create it BEFORE translating
+1. Tables and figures are written *from code* into the results directory
+2. The paper and slides pull them in via `\input{}` / `\includegraphics`
+3. Numbers are never hand-copied into prose — if a number appears in the text, it must match the generated artifact
 
 ---
 
 ## Content Fidelity Checklist
 
 ```
-[ ] Frame count: Beamer frames == Quarto slides
-[ ] Math check: every equation appears with identical notation
-[ ] Citation check: every \cite has a @key in Quarto
-[ ] Environment check: every Beamer box has CSS equivalent
-[ ] Figure check: every \includegraphics has SVG or plotly equivalent
-[ ] No added content: Quarto does not invent slides not in Beamer
-[ ] No dropped content: every Beamer idea appears in Quarto
+[ ] Math check: every equation appears with the notation the code/spec defines
+[ ] Citation check: every \cite has a @key in the bibliography
+[ ] Figure check: every \includegraphics resolves to a generated artifact
+[ ] No hand-copied numbers: every reported value traces to a script/cell
 ```

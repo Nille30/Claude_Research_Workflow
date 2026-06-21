@@ -46,8 +46,8 @@ If Phase 0 reports P0 or P1 findings, fix them (or tune the regex if they are fa
 
 Launch these 4 agents simultaneously using `Task` with `subagent_type=general-purpose`. Each agent's prompt **must** tell it to read `.claude/references/audit-pet-peeves.md` and explicitly check for each class of bug before reporting clean. The pet-peeves file is a living catalogue of drift patterns review bots have caught; it grows with each PR.
 
-#### Agent 1: Guide Content Accuracy
-Focus: `guide/workflow-guide.qmd`
+#### Agent 1: Docs Accuracy (README.md + CLAUDE.md)
+Focus: `README.md` and `CLAUDE.md`
 - All numeric claims match reality (skill count, agent count, rule count, hook count)
 - All file paths mentioned actually exist on disk
 - All skill/agent/rule names match actual directory names
@@ -84,11 +84,11 @@ Focus: `.claude/skills/*/SKILL.md` and `.claude/rules/*.md`
 - Rule `paths:` reference existing directories
 - No contradictions between rules
 - CLAUDE.md skills table matches actual skill directories 1:1
-- All templates referenced in `.claude/rules/*.md` and the guide (`guide/workflow-guide.qmd`) exist in `templates/`
+- All templates referenced in `.claude/rules/*.md` exist in `templates/`
 
 #### Agent 4: Cross-Document Consistency
-Focus: `README.md`, `docs/index.html`, `docs/workflow-guide.html`
-- All feature counts agree across all 3 documents
+Focus: `README.md` and `CLAUDE.md`
+- All feature counts agree across both documents
 - All links point to valid targets
 - License section matches LICENSE file
 - Directory tree matches actual structure
@@ -101,10 +101,9 @@ Categorize each finding:
 - **False alarm**: Discard (document WHY it's false for future rounds)
 
 Common false alarms to watch for:
-- Quarto callout `## Title` inside `:::` divs — this is standard syntax, NOT a heading bug
 - `allowed-tools` linter warning — known linter bug (Claude Code issue #25380), field IS valid
 - Counts in old session logs — these are historical records, not user-facing docs
-- Counts in `CHANGELOG.md` under past version headings — those are snapshots; do NOT update
+- Counts / names in `.claude/references/audit-pet-peeves.md` past-incident entries — historical record; do NOT update
 - `log-reminder.py` outputting `{"decision": "block"}` with `sys.exit(0)` — this IS the modern Claude Code Stop-hook block protocol, NOT a bug
 
 **Count drift specifically: search for every phrasing variant.** A common failure mode is that `replace_all` on one phrasing (e.g., `"26 skills"`) misses sibling phrasings in the same repo. When checking counts, grep for ALL of:
@@ -122,13 +121,9 @@ Apply fixes in parallel where possible. For each fix:
 2. Apply the fix
 3. Verify the fix (grep for stale values, check syntax)
 
-### PHASE 4: Re-render if Guide Changed
+### PHASE 4: Compile-Check Touched Artifacts
 
-If `guide/workflow-guide.qmd` was modified:
-```bash
-quarto render guide/workflow-guide.qmd
-cp guide/workflow-guide.html docs/workflow-guide.html
-```
+If a Beamer deck under `Slides/` was modified, recompile it (`latexmk -pdf -xelatex Slides/<deck>.tex`) to confirm it still builds. Docs are plain markdown (`README.md`, `CLAUDE.md`) — no render step.
 
 ### PHASE 5: Loop-until-dry or Declare Clean
 
@@ -151,7 +146,7 @@ These are real bugs found across 7 rounds — check for these specifically:
 | Missing fail-open | Python hooks `__main__` | Unhandled exception → exit 1 → confusing behavior |
 | Python 3.10+ syntax | Type hints like `dict | None` | Need `from __future__ import annotations` |
 | Missing directories | quality_reports/specs/ | Referenced in rules but never created |
-| Always-on rule listing | Guide + README | meta-governance omitted from listings |
+| Always-on rule listing | Guide + README | orchestrator-protocol omitted from listings |
 | macOS-only commands | Skills, rules | `open` without `xdg-open` fallback |
 | Stale hook references | Rules, guide, CHANGELOG, settings.json | Removed hooks still mentioned somewhere |
 
@@ -167,13 +162,13 @@ After each round, report:
 | # | Severity | File | Issue | Status |
 |---|----------|------|-------|--------|
 | 1 | Critical | file.py:42 | Description | Fixed |
-| 2 | Medium | file.qmd:100 | Description | Fixed |
+| 2 | Medium | file.tex:100 | Description | Fixed |
 
 ### Verification
 - [ ] No stale counts (grep confirms)
 - [ ] All hooks have fail-open + future annotations
-- [ ] Guide renders successfully
-- [ ] docs/ updated
+- [ ] Touched Beamer decks compile
+- [ ] README.md ↔ CLAUDE.md consistent
 
 ### Result: [CLEAN | N issues remaining]
 ```

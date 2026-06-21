@@ -122,7 +122,7 @@ Set this flag whenever the skill writes a **persistent, load-bearing file** that
 
 **Set it for skills that:**
 
-- Create new persistent source files (`/create-lecture` → new `.tex`, `/new-diagram` → new TikZ source).
+- Create new persistent source files (`/new-diagram` → new TikZ source).
 - Write a self-modifying artifact (`/learn` → new SKILL.md, `/checkpoint` → state snapshot, `/preregister` → preregistration document).
 - Run a destructive cycle (`/deep-audit` → repo-wide fix loop).
 
@@ -130,7 +130,7 @@ Set this flag whenever the skill writes a **persistent, load-bearing file** that
 
 - Produce transient analysis output (`/proofread`, `/review-r`, `/visual-audit` — write reports under `quality_reports/` that are easy to delete).
 - Are read-only diagnostics (`/permission-check`, `/context-status`).
-- Compile / render / deploy from existing source (`/compile-latex`, `/deploy`, `/extract-tikz`).
+- Compile / render from existing source (`/compile-latex`, `/extract-tikz`).
 
 The flag still allows direct invocation as `/skill-name` — it only blocks the model from auto-triggering on a heuristic match.
 
@@ -424,7 +424,7 @@ When adapting this template to your domain:
 - [ ] Replace example trigger phrases with your field's terminology
 - [ ] Add domain-specific file types (`.R`, `.py`, `.ipynb`, `.tex`, `.stan`)
 - [ ] Include field conventions (notation, formatting, citation styles)
-- [ ] Reference standard tools (`ggplot2`, `pandas`, `TikZ`, `Stata`)
+- [ ] Reference standard tools (`marimo`, `pandas`, `ggplot2`, `TikZ`)
 - [ ] Add common error messages from your toolchain
 - [ ] Include institutional requirements (thesis formats, journal templates)
 
@@ -452,4 +452,4 @@ When adapting this template to your domain:
 - **Purpose:** Starter for domain-specific skills
 - **Usage:** Copy to `.claude/skills/[name]/SKILL.md`, customize for your field
 
-For existing skills examples, see `.claude/skills/` directory (52 skills for LaTeX, R, Quarto, and research workflows).
+For existing skills examples, see the `.claude/skills/` directory (skills for LaTeX, Python/Marimo, R, and research workflows).

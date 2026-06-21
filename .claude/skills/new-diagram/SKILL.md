@@ -99,15 +99,15 @@ Loop:
 
 **Max 5 rounds.** If after 5 rounds the reviewer is still reporting CRITICAL issues, surface the situation to the user — the snippet or the requested content may need redesign, not just tweaking.
 
-### Step 7: Optional — convert to SVG for Quarto
+### Step 7: Optional — convert to SVG
 
-If the user plans to use the diagram in Quarto slides (not just Beamer), convert the compiled PDF to SVG:
+If the user wants an SVG of the diagram (in addition to the PDF), convert the compiled PDF to SVG:
 
 ```bash
 pdf2svg "${DST%.tex}.pdf" "${DST%.tex}.svg" 1
 ```
 
-Snippet-based diagrams are single-page, so a single `.svg` with the same basename as `.tex` is correct here. This differs from `/extract-tikz`, which produces a multi-page PDF from a `Figures/LectureN/extract_tikz.tex` master and names outputs `tikz_exact_00.svg, tikz_exact_01.svg, ...` (0-based filenames over 1-indexed PDF pages). If you need multi-page output for slide-by-slide reveals, use `/extract-tikz` instead.
+Snippet-based diagrams are single-page, so a single `.svg` with the same basename as `.tex` is correct here. This differs from `/extract-tikz`, which produces a multi-page PDF from a `Figures/LectureN/extract_tikz.tex` master and names outputs `tikz_exact_00.svg, tikz_exact_01.svg, ...` (0-based filenames over 1-indexed PDF pages). If you need multi-page output, use `/extract-tikz` instead.
 
 ### Step 8: Clean up build artifacts
 
@@ -126,7 +126,7 @@ Print a summary:
 - Reviewer verdict and number of rounds
 - `.pdf` size and page count
 - `.svg` path if generated
-- Reminder to `\input` or `\includegraphics` the diagram in the target Beamer/Quarto file
+- Reminder to `\input` or `\includegraphics` the diagram in the target Beamer file
 
 ## Why start from a snippet?
 

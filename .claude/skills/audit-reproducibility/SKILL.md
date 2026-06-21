@@ -1,6 +1,6 @@
 ---
 name: audit-reproducibility
-description: Enforce the replication-protocol.md rule by cross-checking numeric claims in a manuscript against the actual R / Stata / Python outputs. Report PASS/FAIL per claim against tolerance thresholds. Use before submission and before releasing a replication package.
+description: Enforce the replication-protocol.md rule by cross-checking numeric claims in a manuscript against the actual Python / R outputs. Report PASS/FAIL per claim against tolerance thresholds. Use before submission and before releasing a replication package.
 argument-hint: "[manuscript path] [outputs-dir] (outputs-dir defaults to scripts/R/_outputs/)"
 allowed-tools: ["Read", "Grep", "Glob", "Write", "Bash", "Task", "Monitor"]
 effort: high
@@ -22,7 +22,7 @@ Compare numeric claims in a manuscript (point estimates, standard errors, p-valu
 ## Inputs
 
 - `$0` — path to the manuscript (`.tex`, `.qmd`, `.md`, `.pdf`). Required.
-- `$1` — path to the outputs directory. Defaults to `scripts/R/_outputs/`. Recognised alternatives: `scripts/stata/_outputs/` (Stata pipelines built by [`/stata-replication`](../stata-replication/SKILL.md)), `_targets/objects/` (R `targets` workflows), any directory the user-specified outputs live in.
+- `$1` — path to the outputs directory. Defaults to `scripts/R/_outputs/`. Recognised alternatives: `scripts/python/_outputs/` (Python pipelines), `_targets/objects/` (R `targets` workflows), any directory the user-specified outputs live in.
 
 ## Workflow
 
@@ -65,7 +65,7 @@ Scan `$1` for corresponding values. Priority order:
 1. **`.rds` files** — `readRDS(path)$coef[["treatment"]]` style lookups. Can use `Rscript -e "saveRDS(summary(readRDS(...)), '/tmp/audit.rds')"` to extract.
 2. **`.tex` tables** — parse LaTeX table cells directly; match on column headers + row labels.
 3. **`.csv` summary files** — pandas/readr parse, key-value lookup.
-4. **`.out` / `.log` files** (Stata, regress output) — regex extraction.
+4. **`.out` / `.log` files** (regression output) — regex extraction.
 5. **`.json`** — direct key lookup.
 
 Record each extracted result:
@@ -113,7 +113,7 @@ A tolerance check resolves to one of four dispositions:
 - **EXPLAINED** — outside tolerance, **but** the author has recorded a *concrete, named alternative specification* that accounts for the gap (see the downgrade rule). Surfaced in the report and carried into a response-to-referees; does **not** block.
 - **UNMATCHED** — no computed counterpart found (Phase 3 confidence < 0.7). Never auto-downgradable.
 
-**A mismatch is not automatically a failure.** In applied work the most common out-of-tolerance result is a *defensible alternative spec*, not a bug — `reghdfe` vs `feols` clustering df, never-treated vs not-yet-treated comparison group, conditional vs unconditional parallel trends, a different MC seed/reps, or display rounding. The skill's job is to *stage the disagreement* for a human auditor, not to pronounce the code right and the paper wrong. (The df-adjustment note in "Stata-specific notes" below is the canonical example of a named alternative.)
+**A mismatch is not automatically a failure.** In applied work the most common out-of-tolerance result is a *defensible alternative spec*, not a bug — `reghdfe` vs `feols` clustering df, never-treated vs not-yet-treated comparison group, conditional vs unconditional parallel trends, a different MC seed/reps, or display rounding. The skill's job is to *stage the disagreement* for a human auditor, not to pronounce the code right and the paper wrong. (A clustering df-adjustment difference between estimators is the canonical example of a named alternative.)
 
 **The manuscript is not the oracle.** When the computed value disagrees with the manuscript, do not presume the code is correct and the paper stale — nor the reverse. A refactor may have broken a previously-correct table (the *on-disk output* is the buggy one), or the paper may carry an old number. The computed value is a **challenger**, not ground truth. Report a mismatch as "one of {paper, code} must change — isolate which," never "revert the code to match the paper." This prevents the trap of reverting a genuine bug-fix just to make the paper 'reproduce.'
 
@@ -194,19 +194,14 @@ Write `quality_reports/reproducibility_audit_[manuscript-name].md`:
 
 ## Source-language coverage
 
-The skill compares manuscript claims against outputs in three source-language ecosystems:
+The skill compares manuscript claims against outputs in two source-language ecosystems:
 
 | Source | Default outputs dir | Read-output via | Common claim sources |
 |---|---|---|---|
-| **R** (default) | `scripts/R/_outputs/` | `readRDS()`, `arrow::read_parquet()`, `vroom::vroom()` | `.rds` / `.parquet` / `.csv` / `tinytable` `.tex` |
-| **Stata** (v1.9.0) | `scripts/stata/_outputs/` | `haven::read_dta()` from R, or `pyreadstat.read_dta()` from Python | `.dta` / `esttab` `.tex` / `.smcl` log values |
 | **Python** | `scripts/python/_outputs/` (or `_targets/`) | `pandas.read_parquet`, `pickle.load` | `.parquet` / `.pickle` / `.csv` |
+| **R** | `scripts/R/_outputs/` | `readRDS()`, `arrow::read_parquet()`, `vroom::vroom()` | `.rds` / `.parquet` / `.csv` / `tinytable` `.tex` |
 
-**Stata-specific notes (v1.9.0):**
-
-- `.dta` outputs are read via `haven::read_dta()` (R), `pyreadstat.read_dta()` (Python), or by parsing the corresponding `esttab` `.tex` if the table-cell value is what the manuscript cites.
-- Manuscript cell `\input{scripts/stata/_outputs/tab_main.tex}` is the strongest provenance signal — the cell value comes mechanically from the .do file. Match the location in the `.tex` to the regression call in `03_analyze.do`.
-- Clustering df adjustments can differ between `reghdfe` and base `reg, cluster()`. If a SE mismatches at the 2nd decimal, the tolerance in `replication-protocol.md` covers it; if it mismatches at the 1st decimal, investigate the df adjustment.
+If an output ships as a `.dta` data file, it is read via `pandas.read_stata()` / `pyreadstat.read_dta()` (Python) or `haven::read_dta()` (R).
 
 ## Passport-mode (v1.9.0)
 
@@ -240,7 +235,7 @@ See [`.claude/rules/replication-protocol.md`](../../rules/replication-protocol.m
 ## What this skill does NOT do
 
 - **Re-run your analysis.** The skill compares CURRENT outputs against manuscript claims. If the outputs are stale, re-run your pipeline first (the pre-flight phase will warn).
-- **Catch wrong specifications.** A regression that compiles cleanly and produces a reproducible `-1.632` is reproducible. Whether `-1.632` is the RIGHT estimand is a `review-paper` / domain-reviewer question.
+- **Catch wrong specifications.** A regression that compiles cleanly and produces a reproducible `-1.632` is reproducible. Whether `-1.632` is the RIGHT estimand is a `review-paper` / `domain-referee` question.
 - **Check external package versions.** The `sessionInfo.txt` capture lets a reviewer see the env; pinning versions is on the user (via `renv.lock` or a `DESCRIPTION` file).
 
 ## Long batch reruns: use the Monitor tool (Apr 2026)

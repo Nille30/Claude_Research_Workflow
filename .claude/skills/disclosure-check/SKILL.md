@@ -22,7 +22,7 @@ Scan analysis outputs built on **restricted or confidential data** (Census FSRDC
 
 ## Inputs
 
-- `$0` — outputs directory to scan. Defaults to `scripts/R/_outputs/`. Recognised siblings: `scripts/stata/_outputs/`, `scripts/python/_outputs/`, or any export-staging directory (e.g., a `to_review/` folder the analyst stages for the RDC).
+- `$0` — outputs directory to scan. Defaults to `scripts/R/_outputs/`. Recognised siblings: `scripts/python/_outputs/`, or any export-staging directory (e.g., a `to_review/` folder the analyst stages for the RDC).
 - `--provider` — selects which disclosure-rule profile to load (Phase 0). One of `census` / `irs` / `irb` / `generic`. **Providers differ** — thresholds and rules are not interchangeable; default `generic` is deliberately conservative.
 - `--threshold N` — override the minimum cell count (default `n<10`). Census FSRDC commonly uses 10 for establishments; IRS and many IRBs differ. Always reconcile with your provider's *written* rules.
 
@@ -41,7 +41,7 @@ Scan analysis outputs built on **restricted or confidential data** (Census FSRDC
 
 ### Phase 1: Scan the outputs directory
 
-Glob the outputs dir for `.tex`, `.csv`, `.txt`, `.log`, `.smcl`, `.out`, `.md` tables and figure-data files. For each:
+Glob the outputs dir for `.tex`, `.csv`, `.txt`, `.log`, `.out`, `.md` tables and figure-data files. For each:
 
 - **Cell counts** — parse table cells / frequency columns; flag any count `0 < n < threshold` that is not already suppressed.
 - **Complementary-suppression gaps** — if one cell in a row/column is suppressed but the margin total and the other cells let a reader back it out by subtraction, the suppression is **incomplete**.
@@ -129,7 +129,7 @@ Write `quality_reports/disclosure_check_[outputs-dir-slug].md`:
 - [`.claude/rules/confidential-data.md`](../../rules/confidential-data.md) — restricted-data handling contract + the provider-rule profiles this skill loads.
 - [`.claude/rules/replication-protocol.md`](../../rules/replication-protocol.md) — for restricted-data papers the replication package ships code + access path, not the microdata; screen every released output first.
 - [`.claude/skills/audit-reproducibility/SKILL.md`](../audit-reproducibility/SKILL.md) — numeric paper↔code verification: run it on the *retained* values, this skill on the *released* ones.
-- [`.claude/skills/data-analysis/SKILL.md`](../data-analysis/SKILL.md), [`.claude/skills/stata-replication/SKILL.md`](../stata-replication/SKILL.md) — produce the R / Stata / Python outputs this skill screens.
+- [`.claude/skills/data-analysis/SKILL.md`](../data-analysis/SKILL.md) — produces the Python / R outputs this skill screens.
 - [AEA Data Editor checklist](https://aeadataeditor.github.io/) and the [DCAS standard](https://datacodestandard.org/) — disclosure + access expectations for restricted-data deposits (openICPSR restricted-access stub).
 
 ## What this skill does NOT do

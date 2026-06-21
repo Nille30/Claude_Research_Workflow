@@ -1,7 +1,7 @@
 ---
 name: did-event-study
-description: Run a staggered difference-in-differences / event-study analysis to the Sant'Anna practitioner standard — drives the canonical packages (R `did`/`DRDID`/`didFF`/`contdid`; Stata `csdid`/`drdid`), enforces the doubly-robust default, a mandatory diagnostic + sensitivity suite, uniform-band inference, replicate-and-verify-against-source discipline, and ends in a graded credibility verdict. Use when user says "run a DiD", "event study", "staggered adoption", "Callaway Sant'Anna", "att_gt", "csdid", "did with multiple periods", or points at panel data with a treatment-timing variable. NEVER reimplements an estimator.
-argument-hint: "[data path] [--outcome --unit --time --gvar] [--control nevertreated|notyettreated] [--continuous] [--stata]"
+description: Run a staggered difference-in-differences / event-study analysis to the Sant'Anna practitioner standard — drives the canonical packages (R `did`/`DRDID`/`didFF`/`contdid`; Python ports held to the same standard), enforces the doubly-robust default, a mandatory diagnostic + sensitivity suite, uniform-band inference, replicate-and-verify-against-source discipline, and ends in a graded credibility verdict. Use when user says "run a DiD", "event study", "staggered adoption", "Callaway Sant'Anna", "att_gt", "did with multiple periods", or points at panel data with a treatment-timing variable. NEVER reimplements an estimator.
+argument-hint: "[data path] [--outcome --unit --time --gvar] [--control nevertreated|notyettreated] [--continuous]"
 allowed-tools: ["Read", "Grep", "Glob", "Write", "Bash"]
 effort: high
 ---
@@ -75,12 +75,12 @@ Follow the decision logic in §Estimator selection. Output: which estimator, `es
   `fixest::feols(y ~ i(time_to_treat, treat, ref = -1) | id + year, cluster = ~id)`. Confirm `att_gt(est_method = "reg")` matches it in simple cases (SEs differ only because of the bootstrap) so any divergence is attributable to *design*, not a coding bug.
 - **Continuous dose [ALPHA — API may change]:**
   `contdid::cont_did(yname, dname, gname, tname, idname, data, target_parameter = "level"|"slope", aggregation = "dose"|"eventstudy")`. `dname` is the **time-invariant real dose** (its actual value pre-treatment, **not 0**); `gname = 0` for never-treated. `level → ATT(d)`, `slope → ACRT(d)`.
-- **Stata twins** (`--stata`) — **R is the benchmark; Stata must match it.** `csdid y covs, ivar(id) time(t) gvar(g) method(dripw) notyet asinr` (the `asinr` option = "as in R") must reproduce `did::att_gt` to **1e-6**; `estat event` / `estat simple`; `drdid` for the 2×2. Any Python port is held to the same: **match R**.
+- **Other-language ports** — **R is the benchmark; any port must match it.** A Python port of these estimators must reproduce `did::att_gt` to **1e-6** (point + analytic SE): **match R**.
 
 ### Phase 4 — Mandatory diagnostics (none skippable)
 1. **Pre-trends (a PRE-TEST, not a test):** read pre-treatment `ATT(g,t)` for `t<g` and the **Wald p-value** from `summary(out)`; in event-study form all `e<0 ≈ 0`, with `e = -1 ≈ 0`. Passing is *evidence on credibility*, **not proof** PT holds where you need it. **Do NOT pre-test with a TWFE event study** — under selective timing it can reject PT even when it holds.
 2. **Event study:** `aggte(out, type = "dynamic")` → `ggdid()` (red = pre pseudo-ATTs, blue = post; set `ylim` so panels compare). Pseudo-ATTs are valid only under no-anticipation.
-3. **Negative-weights / forbidden-comparison check:** satisfied *by design* via `att_gt`/`csdid`; flag negative TWFE weights as the reason to prefer the ATT(g,t) building block.
+3. **Negative-weights / forbidden-comparison check:** satisfied *by design* via `att_gt`; flag negative TWFE weights as the reason to prefer the ATT(g,t) building block.
 4. **DR overlap:** inspect propensity-score overlap (the JEL Figure 1 idea). PS trimming default `trim.level = 0.995`; `ps.flag` reports IPT convergence.
 
 ### Phase 5 — Sensitivity (ROBUSTNESS, never a pass/fail pre-test)
@@ -99,7 +99,7 @@ Follow the decision logic in §Estimator selection. Output: which estimator, `es
 
 ### Phase 6 — Inference
 - Multiplier bootstrap, `bstrap = TRUE`, `cband = TRUE` → **uniform/simultaneous** bands robust to multiple testing. `biters = 25000` for publication. **Never** ship pointwise-only (`bstrap = FALSE, cband = FALSE`) as the headline.
-- `clustervars` ≤ 2 (one = `idname`); cluster TWFE benchmarks at the unit level. Few-treated-cluster settings need care (e.g. a wild-cluster bootstrap via `fwildclusterboot`/`boottest`).
+- `clustervars` ≤ 2 (one = `idname`); cluster TWFE benchmarks at the unit level. Few-treated-cluster settings need care (e.g. a wild-cluster bootstrap via `fwildclusterboot`).
 - Report design-relevant weights (`weightsname`) AND report weighted *and* unweighted.
 
 ### Phase 7 — Aggregation & reporting
@@ -128,18 +128,18 @@ repeated cross-sections?    → att_gt(panel=FALSE) / drdid(panel=FALSE)
 - **Heterogeneity-robust estimators usually agree** (CS, Sun–Abraham, BJS, dCDH) — the first-order priority is a transparent target parameter + transparent comparison group, not agonizing over the package. Under **(quasi-)random rollout timing**, the efficient Roth–Sant'Anna `staggered` estimator is worth considering, but `att_gt` (Callaway–Sant'Anna) stays the workhorse default.
 
 ## Verification / replication standard (from `DiD_book`)
-- Translate **from**, and verify **against**, the **original author code** — benchmark against the actual Stata `esttab`/`outreg` outputs, not printed paper numbers.
+- Translate **from**, and verify **against**, the **original author code** — benchmark against the actual code outputs, not printed paper numbers.
 - **Match the source to `abs_diff < 1e-6`** on BOTH point estimate AND SE; loosen only deliberately and document the scope. "Replication first — match original numbers before extending."
-- Mandatory infra: `renv.lock` + `renv::restore()`, `here::here()`, `set.seed`, one master script, machine-readable outputs (`.rds`, `.csv` coefficients, a per-analysis `verification_against_stata.csv`).
-- **R is the benchmark; other languages match R.** His R packages (`did`/`DRDID`/`didFF`/`contdid`) are the canonical implementations — Stata (`csdid`/`drdid` via `asinr` = "as in R") and Python ports must **reproduce R** to **1e-6** (point + analytic SE; bootstrap-SE and cosmetic graphing differences excepted). *(This is distinct from replicating a published paper, where that paper's original author code — often Stata — is the truth for its numbers.)*
+- Mandatory infra: `renv.lock` + `renv::restore()`, `here::here()`, `set.seed`, one master script, machine-readable outputs (`.rds`, `.csv` coefficients, a per-analysis `verification.csv`).
+- **R is the benchmark; other languages match R.** His R packages (`did`/`DRDID`/`didFF`/`contdid`) are the canonical implementations — any Python port must **reproduce R** to **1e-6** (point + analytic SE; bootstrap-SE and cosmetic graphing differences excepted). *(This is distinct from replicating a published paper, where that paper's original author code — often Stata — is the truth for its numbers, and reading its `.dta`/`esttab` outputs is the benchmark.)*
 
 ## Resources (canonical, public)
 - **did-resources hub:** <https://psantanna.com/did-resources/> — the curated list (the JEL Practitioner's Guide, *What's Trending*, the 14-lecture course, the DiD checklist, all packages). **Lead here.**
-- **Packages:** `did` <https://bcallaway11.github.io/did/> · `DRDID` <https://psantanna.com/DRDID/> · `didFF` · `contdid` · `staggered` · Stata `csdid`/`drdid` · Python `drdid`/`csdid`.
+- **Packages:** `did` <https://bcallaway11.github.io/did/> · `DRDID` <https://psantanna.com/DRDID/> · `didFF` · `contdid` · `staggered` · Python `drdid`/`csdid`.
 - **Papers:** Callaway & Sant'Anna (2021) <https://doi.org/10.1016/j.jeconom.2020.12.001> · Sant'Anna & Zhao (2020) <https://doi.org/10.1016/j.jeconom.2020.06.003> · Roth & Sant'Anna (2023, *Econometrica*) <https://doi.org/10.3982/ECTA19402> · Rambachan & Roth (2023, HonestDiD) · continuous treatment <https://arxiv.org/abs/2107.02637>.
 
 ## Output
-Write to `scripts/R/_outputs/` (and `scripts/Stata/` if `--stata`): the master script, the `ATT(g,t)` + aggregations (`.rds`), the event-study figure (simultaneous + pointwise bands), the HonestDiD/`didFF` sensitivity, the `verification_against_stata.csv`, and a `did_credibility_verdict.md` (the Phase 8 graded verdict + every table→script:line map).
+Write to `scripts/R/_outputs/`: the master script, the `ATT(g,t)` + aggregations (`.rds`), the event-study figure (simultaneous + pointwise bands), the HonestDiD/`didFF` sensitivity, the `verification.csv`, and a `did_credibility_verdict.md` (the Phase 8 graded verdict + every table→script:line map).
 
 ## Exit behavior
 - Exit 0 with the graded verdict. A **Not-credible** verdict or a failed source-verification (`abs_diff ≥ 1e-6`) is surfaced prominently — never silently passed.
@@ -155,7 +155,6 @@ Write to `scripts/R/_outputs/` (and `scripts/Stata/` if `--stata`): the master s
 - `--outcome` `--unit` `--time` `--gvar` — map columns to `yname`/`idname`/`tname`/`gname`.
 - `--control` `<nevertreated|notyettreated>` — comparison group (default per §Estimator selection).
 - `--continuous` — continuous-dose mode (`contdid`, ALPHA).
-- `--stata` — also run the Stata twin (`csdid`/`drdid`) for the dual-software cross-check.
 
 ## Cross-references
 - [`.claude/rules/did-conventions.md`](../../rules/did-conventions.md) — the enforceable standards.

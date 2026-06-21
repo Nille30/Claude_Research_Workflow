@@ -5,7 +5,6 @@
 #
 # Historical references (CHANGELOG.md is excluded entirely) and explicit
 # "prior generation" / comparison / "or later" lines are allowed via markers.
-# Rendered HTML is derived from the .qmd, so we scan the source, not the HTML.
 #
 # Exit codes: 0 = clean, 1 = drift detected, 2 = internal error.
 set -uo pipefail
@@ -34,8 +33,6 @@ SURFACES=(
     "CLAUDE.md"
     "TROUBLESHOOTING.md"
     "MEMORY.md"
-    "guide/workflow-guide.qmd"
-    "docs/index.html"
     ".claude/rules/model-routing.md"
     ".claude/scripts/statusline.sh"
 )

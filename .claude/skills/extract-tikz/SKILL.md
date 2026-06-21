@@ -1,13 +1,13 @@
 ---
 name: extract-tikz
-description: Extract TikZ diagrams from Beamer `.tex` source, compile each to a standalone PDF, and convert to SVG with 0-based indexing. Use when user says "extract the tikz", "regenerate the diagrams", "rebuild the SVGs", "sync tikz to quarto", or after editing TikZ blocks in a Beamer deck that also has a Quarto mirror.
+description: Extract TikZ diagrams from Beamer `.tex` source, compile each to a standalone PDF, and convert to SVG with 0-based indexing. Use when user says "extract the tikz", "regenerate the diagrams", "rebuild the SVGs", or after editing TikZ blocks in a Beamer deck.
 argument-hint: "[LectureN, e.g., Lecture2]"
 allowed-tools: ["Read", "Bash", "Glob", "Task"]
 ---
 
 # Extract TikZ Diagrams to SVG
 
-Extract TikZ diagrams from the Beamer source, compile to multi-page PDF, and convert each page to SVG for use in Quarto slides.
+Extract TikZ diagrams from the Beamer source, compile to multi-page PDF, and convert each page to SVG.
 
 > **Creating a brand-new diagram instead of extracting?** Use [`/new-diagram`](../new-diagram/SKILL.md) — it scaffolds from `templates/tikz-snippets/` with the prevention rules pre-applied.
 
@@ -69,29 +69,23 @@ for i in $(seq 1 $PAGES); do
 done
 ```
 
-### Step 6: Sync to docs/ for deployment
-```bash
-cd ../..
-./scripts/sync_to_docs.sh $ARGUMENTS
-```
-
-### Step 7: Verify SVG files
+### Step 6: Verify SVG files
 - Read 2-3 SVG files to confirm they contain valid SVG markup
 - Confirm file sizes are reasonable (not 0 bytes)
 
-### Step 8: Visual Quality Review (tikz-reviewer)
+### Step 7: Visual Quality Review (tikz-reviewer)
 
 Spawn the **tikz-reviewer** agent (via `Task` with `subagent_type=tikz-reviewer`) on the TikZ source blocks to catch label overlaps, geometric errors, and visual inconsistencies. The reviewer cites specific passes and formulas from [`.claude/rules/tikz-measurement.md`](../../rules/tikz-measurement.md). If it returns **NEEDS REVISION** or **REJECTED**, loop:
 
 1. Apply the recommended fixes to the Beamer `.tex` source (single source of truth).
 2. Re-copy the updated block to `extract_tikz.tex`.
 3. Re-run the prevention pre-check (Step 1) and compile.
-4. Regenerate SVGs, re-sync.
+4. Regenerate SVGs.
 5. Re-invoke tikz-reviewer.
 
 Stop when tikz-reviewer returns **APPROVED** (max 5 rounds).
 
-### Step 9: Report results
+### Step 8: Report results
 
 ## Source of Truth Reminder
 TikZ diagrams MUST be edited in the Beamer `.tex` file first, then copied verbatim to `extract_tikz.tex`. See `.claude/rules/single-source-of-truth.md`.

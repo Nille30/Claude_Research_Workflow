@@ -14,10 +14,10 @@ it appends a structured entry to today's session log
   - timestamp
   - changed files (git status --porcelain, capped)
   - active plan + status (most recent non-completed plan)
-  - compile-completion note: any Slides/*.tex or Quarto/*.qmd newer than
-    its compiled output (.pdf / .html). Non-blocking by default; set
-    CLAUDE_COMPILE_GATE=block to turn the note into a Stop-block that asks
-    Claude to compile before stopping.
+  - compile-completion note: any Slides/*.tex newer than its compiled
+    output (.pdf). Non-blocking by default; set CLAUDE_COMPILE_GATE=block
+    to turn the note into a Stop-block that asks Claude to compile before
+    stopping.
 
 Throttling: writes only when `git status --porcelain` changed since the
 last entry (hashed in state), so a quiet turn does not spam the log.
@@ -87,13 +87,13 @@ def active_plan(project_dir: str) -> str | None:
 
 
 def uncompiled(project_dir: str) -> list[str]:
-    """Slides/*.tex newer than its .pdf, Quarto/*.qmd newer than its .html."""
+    """Slides/*.tex newer than its .pdf."""
     flagged: list[str] = []
     root = Path(project_dir)
-    for src, out_ext in ((root / "Slides", ".pdf"), (root / "Quarto", ".html")):
+    for src, out_ext in ((root / "Slides", ".pdf"),):
         if not src.is_dir():
             continue
-        for f in src.glob("*.tex" if out_ext == ".pdf" else "*.qmd"):
+        for f in src.glob("*.tex"):
             out = f.with_suffix(out_ext)
             try:
                 if not out.exists() or f.stat().st_mtime > out.stat().st_mtime:
@@ -171,7 +171,7 @@ def main() -> int:
     # Opt-in compile gate: turn the uncompiled note into a Stop-block.
     if flagged and os.environ.get("CLAUDE_COMPILE_GATE", "") == "block":
         reason = ("Uncompiled artifacts before stop: " + "; ".join(flagged) +
-                  ". Run /compile-latex or /deploy, or set CLAUDE_COMPILE_GATE= to disable this gate.")
+                  ". Run /compile-latex, or set CLAUDE_COMPILE_GATE= to disable this gate.")
         json.dump({"decision": "block", "reason": reason}, sys.stdout)
 
     return 0

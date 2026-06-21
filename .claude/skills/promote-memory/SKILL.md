@@ -12,11 +12,11 @@ allowed-tools: ["Read", "Write", "Glob", "Grep", "Task", "Bash"]
      "Five-critic council" (claudeblattman.com, Apr 2026 continuous-improvement
      loop). Blattman uses it to decide what enters his MEMORY layer; we adapt
      it to the personal-memory → MEMORY.md promotion question codified in
-     .claude/rules/meta-governance.md. -->
+     .claude/rules/memory-model.md. -->
 
 # `/promote-memory` — five-critic council for memory promotion
 
-The template's [`meta-governance.md`](../../rules/meta-governance.md) rule splits memory into two tiers:
+The template's [`memory-model.md`](../../rules/memory-model.md) rule splits memory into two tiers:
 
 - **`MEMORY.md`** (committed, ≤ 200 lines) — generic learnings that help all forkers.
 - **`.claude/state/personal-memory.md`** (gitignored, no size cap) — machine-specific and user-specific learnings.
@@ -58,7 +58,7 @@ Each critic runs in a forked context (`Task` with `context=fork`) — they don't
 
 ### 5. Format critic
 
-> "Does the entry follow the schema in [`.claude/rules/meta-governance.md`](.claude/rules/meta-governance.md): `[LEARN:category] wrong → right` for corrections, structured `**Why:**` + `**How to apply:**` for feedback/project entries? If it's just a free-form note, vote NO — fix the format first, then re-submit."
+> "Does the entry follow the schema in [`.claude/rules/memory-model.md`](.claude/rules/memory-model.md): `[LEARN:category] wrong → right` for corrections, structured `**Why:**` + `**How to apply:**` for feedback/project entries? If it's just a free-form note, vote NO — fix the format first, then re-submit."
 
 ### Council verdict
 
@@ -83,7 +83,7 @@ Five `Task` invocations in parallel, one per critic, each with `context: fork`:
 - **Staleness critic** — context: the candidate entry + the ability to `Read` / `Grep` the codebase. Should explicitly check any file paths / function names / settings the entry references.
 - **Redundancy critic** — context: the candidate entry + the current `MEMORY.md` + `CLAUDE.md` + relevant rule files.
 - **Evidence critic** — context: the candidate entry only. Vote based on whether the entry self-describes its motivation.
-- **Format critic** — context: the candidate entry + [`.claude/rules/meta-governance.md`](.claude/rules/meta-governance.md) for the schema reference.
+- **Format critic** — context: the candidate entry + [`.claude/rules/memory-model.md`](.claude/rules/memory-model.md) for the schema reference.
 
 Use the **Haiku tier** for all five critics (per [`.claude/rules/model-routing.md`](../../rules/model-routing.md): mechanical-ish review work). The user can override via the agent's `model:` field if they want Sonnet for the harder calls.
 
@@ -137,7 +137,7 @@ Do **not** auto-promote — even on 5-of-5 YES votes. The user's approval is the
 
 ## Cross-references
 
-- [`.claude/rules/meta-governance.md`](../../rules/meta-governance.md) — the two-tier memory contract this skill operationalizes.
+- [`.claude/rules/memory-model.md`](../../rules/memory-model.md) — the two-tier memory contract this skill operationalizes.
 - [`.claude/agents/promote-memory-council.md`](../../agents/promote-memory-council.md) — the five-critic implementation (one agent file with five role specs, dispatched in parallel via `Task`).
 - [`.claude/rules/model-routing.md`](../../rules/model-routing.md) — why critics default to Haiku tier.
 - `/learn` (existing skill) — captures new `[LEARN]` entries; pairs with `/promote-memory` (which decides what graduates).

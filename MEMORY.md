@@ -33,8 +33,6 @@ When a mistake is corrected, append a `[LEARN:category]` entry below.
 
 [LEARN:design] Quality standard for guide additions: useful + pedagogically strong + drives usage + leaves great impression + improves upon starting fresh + no redundancy + not slow. All 7 criteria must hold.
 
-[LEARN:design] Generic means working for any academic workflow: pure LaTeX (no Quarto), pure R (no LaTeX), Python/Jupyter, any domain (not just econometrics). Test recommendations across use cases.
-
 ## File Organization
 
 [LEARN:files] Specifications go in `quality_reports/specs/YYYY-MM-DD_description.md`, not scattered in root or other directories. Maintains structure.
@@ -59,23 +57,11 @@ When a mistake is corrected, append a `[LEARN:category]` entry below.
 
 ## Memory System
 
-[LEARN:memory] Two-tier memory solves template vs working project tension: MEMORY.md (generic patterns, committed), personal-memory.md (machine-specific, gitignored) → cross-machine sync + local privacy.
-
 [LEARN:memory] Post-merge hooks prompt reflection, don't auto-append → user maintains control while building habit.
 
-## Meta-Governance
-
-[LEARN:meta] Repository dual nature requires explicit governance: what's generic (commit) vs specific (gitignore) → prevents template pollution.
+## Dogfooding
 
 [LEARN:meta] Dogfooding principles must be enforced: plan-first, spec-then-plan, quality gates, session logs → we follow our own guide.
-
-[LEARN:meta] Template development work (building infrastructure, docs) doesn't create session logs in quality_reports/ → those are for user work (slides, analysis), not meta-work. Keeps template clean for users who fork.
-
-## Drift Prevention
-
-[LEARN:drift] `replace_all` on one phrasing (e.g., `"26 skills"`) misses sibling phrasings — `"26 skills, and 21 rules"` (extra "and"), `"26 slash commands"`, `"template's 26"`, `"N skills on day one"` (prose). Count drift hit us 3 times in v1.5.x (PRs #70, #76, #78). Solution: `scripts/check-surface-sync.py` with compound regex patterns as a pre-commit gate. Adding a new phrasing to documentation requires adding a matching regex to the script, otherwise it won't be caught.
-
-[LEARN:drift] Guard against false positives when scanning for template counts: `"3 parallel agents"`, `"17 specialized agents"` (clo-author attribution), `"start with 2-3 skills"` are all legitimate non-template uses of `N + category` phrases. Use compound patterns requiring multiple template-specific tokens on the same line.
 
 ## Claude Code Hooks
 
@@ -93,7 +79,7 @@ When a mistake is corrected, append a `[LEARN:category]` entry below.
 
 ## Claim-vs-Reality Framing
 
-[LEARN:framing] The "orchestrator" is a **pattern** implemented by specific skills (`/commit`, `/qa-quarto`, `/review-paper --adversarial`, `/slide-excellence`, `/create-lecture`, `/data-analysis`, `/review-paper --peer`), not a runtime daemon. Plan approval does NOT auto-trigger the 6-step loop. User invokes a skill; skill runs the loop internally. Docs that say "orchestrator activates automatically after plan approval" are misleading — catch them in review.
+[LEARN:framing] The "orchestrator" is a **pattern** implemented by specific skills (`/commit`, `/review-paper --adversarial`, `/slide-excellence`, `/data-analysis`, `/review-paper --peer`), not a runtime daemon. Plan approval does NOT auto-trigger the 6-step loop. User invokes a skill; skill runs the loop internally. Docs that say "orchestrator activates automatically after plan approval" are misleading — catch them in review.
 
 [LEARN:framing] "Quality gates" is overselling when the only enforcement is inside `/commit` skill (halt-and-ask, not block). A direct `git commit` bypasses the review. Use "quality review" in docs or add an "(advisory)" qualifier. Hard enforcement requires an actual git pre-commit hook — document the gap honestly.
 
@@ -111,7 +97,7 @@ When a mistake is corrected, append a `[LEARN:category]` entry below.
 
 [LEARN:pattern] Verification in this repo now operates at three architectural levels, each addressing a different failure mode. Do NOT collapse them — they are complementary, not redundant:
 
-1. **Critic-fixer loop** (`/qa-quarto`, `/review-paper --adversarial`) — **two agents, serial** — one reads the artifact and flags issues, the other applies fixes; loop until APPROVED. Best for **presentation + structural** bugs (Beamer↔Quarto parity, manuscript completeness). Agents see the full artifact; adversarial tension comes from role assignment.
+1. **Critic-fixer loop** (`/review-paper --adversarial`) — **two agents, serial** — one reads the artifact and flags issues, the other applies fixes; loop until APPROVED. Best for **presentation + structural** bugs (manuscript completeness, internal consistency). Agents see the full artifact; adversarial tension comes from role assignment.
 
 2. **Cross-artifact review** (`/review-paper` + `/review-r` + `/audit-reproducibility`) — **horizontal dependency traversal** — a manuscript's claims depend on scripts' outputs, so the manuscript reviewer spawns script reviewers and reproducibility checkers alongside the paper review. Best for **paper ↔ code consistency** (ATTs, coefficients, N match the outputs that produced them).
 
@@ -143,8 +129,6 @@ The key insight: each pattern enforces independence differently. Critic-fixer us
 
 [LEARN:edits] **For batch edits to protected `.claude/` paths during a session, use Bash + `python3` heredoc.** The Edit tool fires the protected-paths gate; the Bash tool does not. When you have ~5+ edits to `.claude/references/` or `.claude/rules/` in one session, write a single python script that reads → modifies → writes and exec it via Bash. Catches the same parity-gate prompts the user is actively trying to avoid. This is what got v1.8.0's `disable-model-invocation` audit and journal-profile additions through cleanly after the user explicitly asked "no more manual approvals!"
 
-[LEARN:audit] **Surface-sync gate covers numeric counts but NOT enumerative tables.** v1.8.0's deep-audit caught the appendix "All Skills" table missing `/checkpoint` + `/preregister` AND "All Agents" missing the v1.5.0 peer-review trio (editor / domain-referee / methods-referee — pre-existing drift inherited across 3 releases). The `check-surface-sync.py` script counts assertion phrasings ("30 skills") but doesn't verify enumerative tables tabulate the same N items. Pet-peeves entry added (#18). Future: when adding a skill/agent, check the appendix tables — surface-sync won't catch the row drift.
-
 [LEARN:pattern] **`disable-model-invocation: true` is a load-bearing-write discipline, not a "do not disturb" toggle.** Set it on skills that write a *persistent file the user must explicitly intend to create* (lecture .tex, TikZ source, SKILL.md, checkpoint snapshot, preregistration document). Don't set it on skills that produce transient analysis output (proofread / review-r / visual-audit reports). Codified in `templates/skill-template.md` under "When to set `disable-model-invocation: true`". The flag still allows direct invocation as `/skill-name` — it only blocks model auto-trigger on heuristic match.
 
 
@@ -164,8 +148,6 @@ The key insight: each pattern enforces independence differently. Critic-fixer us
 
 [LEARN:pattern] **HIGH-WARN gate-refuse for fabricated citations.** `/verify-claims` (v1.9.0) introduced three severity tiers: HIGH-WARN (fabricated reference / numerical contradiction / directional contradiction), MED-WARN (transient retrieval failure), LOW-WARN (source genuinely inaccessible). HIGH-WARN **blocks `/commit`** for affected files unless explicit `--no-fail-closed` override. False positives erode the gate's authority — be conservative on HIGH-WARN assignment. The CoVe forked-verifier architecture (verifier never sees the draft) is the architectural defence; HIGH-WARN gate is the policy that makes it consequential.
 
-[LEARN:pattern] **70/20/10 architect/editor split for cost discipline.** v1.9.0's `model-routing.md` rule codifies tier-per-agent: Haiku 4.5 for mechanical work (TikZ extraction, citation formatting, bib validation, quarto-fixer); Sonnet 4.6 for review/critique (r-reviewer, slide-auditor, proofreader, humanize-auditor); Opus 4.8 (current Opus) for high-judgment work (editor, methods-referee, claim-verifier, domain-reviewer). Typical 50–80% cost reduction on routed skills with no quality loss on the mechanical tier. Anti-pattern: pushing claim-verifier / methods-referee / editor down a tier to save cost — these protect the paper from hallucination + weak identification + desk-reject mistakes, and the cost of one false-positive PASS dominates the routing savings. Anthropic's Apr 8 2026 "Decoupling brain from hands" post is the primary-source endorsement.
+[LEARN:pattern] **70/20/10 architect/editor split for cost discipline.** v1.9.0's `model-routing.md` rule codifies tier-per-agent: Haiku 4.5 for mechanical work (TikZ extraction, citation formatting, bib validation); Sonnet 4.6 for review/critique (r-reviewer, slide-auditor, proofreader, humanize-auditor); Opus 4.8 (current Opus) for high-judgment work (editor, methods-referee, claim-verifier, domain-referee). Typical 50–80% cost reduction on routed skills with no quality loss on the mechanical tier. Anti-pattern: pushing claim-verifier / methods-referee / editor down a tier to save cost — these protect the paper from hallucination + weak identification + desk-reject mistakes, and the cost of one false-positive PASS dominates the routing savings. Anthropic's Apr 8 2026 "Decoupling brain from hands" post is the primary-source endorsement.
 
 [LEARN:research] **Research-grounded plans beat eyeballed roadmaps.** v1.9.0 started with 4 parallel research agents (Anthropic ecosystem / community repos / cross-vendor / internal audit) producing a 17-item ranked recommendation set, then 2 verification agents resolving uncertainties (rename history, ARS schema details). The plan that emerged was traceable to specific URLs and verified facts. By contrast, the original "let me brainstorm what could improve the guide" cycle would have produced opinions, not citations. Lesson: when scope is "what should we add?" not "fix this bug", invest in research before planning. Cost: ~30 min of agent dispatch; value: confidence that each item was non-redundant and currently true.
-
-[LEARN:workflow] **Surface-sync gate must check enumerative tables too, not just numeric assertions.** v1.9.0 added 6 skills + 2 agents; each addition needed manual surface-sync verification PLUS manual appendix-table updates. `check-surface-sync.sh` caught count drift but not row-by-row table drift. This is pet-peeves entry #18 + v2.0-backlog "enumerative-table consistency check." Until that ships, every new skill / agent addition requires: (1) update count assertions; (2) update appendix table in guide; (3) update README skill/agent table. The cost of forgetting is silent drift that compounds across releases (the v1.5.0 peer-review trio of agents was missing from README for 3 releases before v1.8.0 caught it).

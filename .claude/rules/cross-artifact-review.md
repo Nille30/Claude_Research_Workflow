@@ -1,6 +1,6 @@
 ---
 description: Paper ↔ code cross-artifact review — when /review-paper runs, auto-invoke /review-r on referenced scripts and /audit-reproducibility on the pair. Surface cross-artifact findings alongside the paper review.
-globs: ["master_supporting_docs/**/*.tex", "master_supporting_docs/**/*.qmd", "Slides/**/*.tex", "*.tex", "*.qmd"]
+globs: ["master_supporting_docs/**/*.tex", "Slides/**/*.tex", "*.tex"]
 alwaysApply: false
 ---
 
@@ -29,7 +29,7 @@ Detection signals:
 
 - `\input{scripts/R/...}` or `\input{tables/...}`
 - `%% source: scripts/R/03_analyze.R` comments
-- Numeric claims in text (ATT, coefficients, N, p-values) **combined with** a sibling `scripts/R/` / `scripts/stata/` / `scripts/python/` directory
+- Numeric claims in text (ATT, coefficients, N, p-values) **combined with** a sibling `scripts/R/` / `scripts/python/` directory
 - Table labels in the paper that match filenames under `scripts/*/\_outputs/`
 
 Detection is intentionally conservative — a theory paper with no code should not trigger the protocol, even if it lives in a repo that has scripts for other work.

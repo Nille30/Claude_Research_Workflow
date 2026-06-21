@@ -16,7 +16,7 @@ Produce a thorough, constructive review of an academic manuscript — the kind o
 > - **`/respond-to-referees`** — if you already have referee comments and need a response document, not another review.
 > - **`/slide-excellence`** — for lecture slides, not papers.
 
-**Input:** `$ARGUMENTS` — path to a paper (`.tex`, `.pdf`, or `.qmd`), or a filename in `master_supporting_docs/`. Optional flags:
+**Input:** `$ARGUMENTS` — path to a paper (`.tex` or `.pdf`), or a filename in `master_supporting_docs/`. Optional flags:
 
 - `--adversarial` — critic-fixer loop (max 5 rounds).
 - `--peer <JOURNAL>` — simulated peer review pipeline calibrated to `<JOURNAL>` (see `.claude/references/journal-profiles.md` for available short names).
@@ -38,7 +38,7 @@ One comprehensive review report. Fast, low token cost, suitable for early drafts
 
 ### Adversarial mode (`--adversarial`)
 
-Iterative critic-fixer loop modeled on [`/qa-quarto`](../qa-quarto/SKILL.md). The critic identifies issues, the fixer proposes and applies edits (with user approval), and the critic re-audits. Loops until APPROVED or max 5 rounds.
+Iterative critic-fixer loop using the loop-until-dry critic-fixer primitive ([`orchestrator-protocol.md`](../../rules/orchestrator-protocol.md)). The critic identifies issues, the fixer proposes and applies edits (with user approval), and the critic re-audits. Loops until APPROVED or max 5 rounds.
 
 Use when: preparing a pre-submission draft, responding to a journal-desk rejection with substantive revisions, or after your own major rewrite. Costs more tokens but produces a manuscript the critic has signed off on.
 
@@ -250,7 +250,7 @@ These are the tough questions a top referee would likely raise:
 
 **Only runs if `--adversarial` is in `$ARGUMENTS`.**
 
-Pattern adapted from [`/qa-quarto`](../qa-quarto/SKILL.md), which uses the same loop to iterate on slide quality. Papers get it now because the single-pass review leaves authors doing manual fix-and-resubmit cycles.
+Pattern uses the loop-until-dry critic-fixer primitive ([`orchestrator-protocol.md`](../../rules/orchestrator-protocol.md)). Papers get it now because the single-pass review leaves authors doing manual fix-and-resubmit cycles.
 
 ### Flow
 
@@ -276,7 +276,7 @@ Phase 2: Fixer
   │  Major → Minor). Ask for approval: "apply all", "apply critical+major
   │  only", "review each", or "abort".
   ├─ Apply approved edits with Edit / Edit tools.
-  ├─ If the manuscript is a compile target (`.tex` / `.qmd`), re-compile
+  ├─ If the manuscript is a compile target (`.tex`), re-compile
   │  and verify it still builds.
   │
 Phase 3: Re-audit
@@ -290,7 +290,7 @@ Phase 3: Re-audit
 
 ### Iteration limits — loop-until-dry
 
-Same **loop-until-dry** primitive as `/qa-quarto` ([`orchestrator-protocol.md`](../../rules/orchestrator-protocol.md)): the critic returns `FINDING`s in the shared schema ([`orchestration-schemas.md`](../../references/orchestration-schemas.md)) and the loop **converges when a round adds 0 new CRITICAL/MAJOR concerns** (deduped on `location`+`finding`), not at a fixed count.
+Uses the **loop-until-dry** critic-fixer primitive ([`orchestrator-protocol.md`](../../rules/orchestrator-protocol.md)): the critic returns `FINDING`s in the shared schema ([`orchestration-schemas.md`](../../references/orchestration-schemas.md)) and the loop **converges when a round adds 0 new CRITICAL/MAJOR concerns** (deduped on `location`+`finding`), not at a fixed count.
 
 - **Convergence:** APPROVED when a round produces zero Major Concerns and zero fatal Referee Objections.
 - **Fallback cap:** 5 rounds bounds a non-converging loop; after round 5, halt and list remaining concerns.

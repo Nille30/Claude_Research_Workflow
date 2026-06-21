@@ -7,7 +7,7 @@ Calibration data for the `/review-paper --peer [journal]` simulated peer-review 
 
 **How this file is used.** The `editor` agent reads this file before each `--peer` run, picks the requested `[journal]`, and uses its Referee-pool weights + Typical concerns to select two referees with different dispositions and to seed their pet-peeve priors.
 
-**Customizing for your field.** This file ships with **five top-5 econ journals** as a concrete example. To use `--peer` for a different field (finance, political science, biology, CS, etc.), copy `templates/journal-profile-template.md` into a new section below, fill in the schema, and reference it by the short name you define. See the [Field adaptation](#field-adaptation) section at the bottom.
+**Coverage.** This file ships with the journals this researcher targets: **Econ Top-5** (AER, QJE, JPE, ECMA, ReStud), **Finance Top-3** (JF, JFE, RFS), and **Accounting Top-5** (JAR, JAE, TAR, CAR, RAST). To add another journal, copy `templates/journal-profile-template.md` into a new section below, fill in the schema, and reference it by the short name you define. See the [Field adaptation](#field-adaptation) section at the bottom.
 
 ---
 
@@ -28,7 +28,7 @@ Every profile has these fields:
 
 ## Econ Top-5
 
-> **AEA Data Editor / DCAS policy (applies to all AEA-imprint journals — AER, AEJ:*, JEL, JEP).** Acceptance is conditional on a replication package that clears the **AEA Data and Code Availability Standard** under the Data Editor: a complete deposit (openICPSR), a data availability statement, and code that reproduces every reported number. Run [`/replication-package`](../skills/replication-package/SKILL.md) (which gates on [`/audit-reproducibility`](../skills/audit-reproducibility/SKILL.md)) before submission; for restricted data, deposit cleared outputs + access instructions per [`confidential-data.md`](../rules/confidential-data.md). Econometrica, ReStud, and the political-science journals below enforce comparable archives at acceptance.
+> **AEA Data Editor / DCAS policy (applies to all AEA-imprint journals — AER, AEJ:*, JEL, JEP).** Acceptance is conditional on a replication package that clears the **AEA Data and Code Availability Standard** under the Data Editor: a complete deposit (openICPSR), a data availability statement, and code that reproduces every reported number. Run [`/replication-package`](../skills/replication-package/SKILL.md) (which gates on [`/audit-reproducibility`](../skills/audit-reproducibility/SKILL.md)) before submission; for restricted data, deposit cleared outputs + access instructions per [`confidential-data.md`](../rules/confidential-data.md). Econometrica, ReStud, and the finance and accounting journals below increasingly enforce comparable code/data archives at acceptance (AFA journals — JF — and the SFS — RFS — among them).
 
 ### American Economic Review (AER)
 
@@ -203,112 +203,278 @@ Every profile has these fields:
 
 ---
 
-## Political Science (Top-3)
+## Finance (Top-3)
 
-Three flagship general-interest political-science journals. The `paper_type` taxonomy here typically resolves to `reduced-form`, `formal-theory`, or `survey-experiment` (added in v1.8.0 to support these journals). Other types still apply when relevant.
+The three flagship general-interest finance journals. For empirical asset pricing, the load-bearing referee concerns are **factor-zoo multiple testing** (Harvey-Liu-Zhu: a new factor needs a t-stat above ~3), **out-of-sample / transaction-cost survival**, **microcap and look-ahead/survivorship bias**, and **NYSE vs. all-stock breakpoints + value- vs. equal-weighting**. For corporate/causal work, identification credibility dominates. The `paper_type` taxonomy typically resolves to `reduced-form`, `structural`, or `theory+empirics`.
 
-### American Political Science Review (APSR)
+### Journal of Finance (JF)
 
-**Short name:** `APSR`
+**Short name:** `JF`
 
-**Focus.** Highest-bar general-interest political-science journal; APSA's flagship. Publishes across IR, comparative politics, American politics, formal theory, and political theory. Strongest preference for theoretically motivated work that speaks to multiple subfields.
+**Focus.** Flagship general-interest finance (American Finance Association). Publishes across asset pricing, corporate finance, banking, and market microstructure. Balances theory and empirics; increasingly values credible identification in corporate/empirical work and economically-motivated tests in asset pricing.
 
-**Bar.** "Top-3 in your subfield should know this." A clear theoretical contribution is load-bearing — purely descriptive or purely empirical papers without a theoretical home rarely clear desk.
+**Bar.** A first-order question whose answer the top people in *more than one* finance subfield will care about. Crisp economic contribution, not an incremental anomaly.
 
 **Domain-referee adjustments.**
-- Contribution 30 → 35 (theoretical-importance bar is high)
-- Lit positioning 25 → 25 (unchanged)
-- Fit 10 → 5 (APSR publishes broadly across subfields; fit is rarely a binding constraint)
+- Contribution 30 → 35 (general-interest importance bar)
+- External validity 15 → 20 (generalizability across markets/periods)
+- Fit 10 → 5 (JF publishes broadly across finance)
 
 **Methods-referee adjustments.**
-- Identification 35 → 30 (still cared about, but APSR rewards theoretical novelty even when identification is observational)
-- For `formal-theory` papers: Comparative-static sharpness 25 → 30 (the theoretical contribution must produce sharp predictions)
-- For `survey-experiment` papers: Sampling-frame validity is a desk-level concern; convenience samples (uncalibrated MTurk) face an uphill battle.
+- Identification 35 → 40 (corporate/causal work)
+- For asset pricing: Inference 20 → 25 (multiple-testing / t > 3 bar)
+- Replication 5 → 10 (AFA code/data policy)
 
 **Typical concerns.**
-- "Where is the theoretical contribution? What would a theorist in a different subfield take from this?"
-- "Is the design appropriate to the population the paper claims to speak about?"
-- "Does the paper engage seriously with formal theory, or only with reduced-form empirics?"
-- "Is the conclusion testable, or vacuous?"
+- "Is this a first-order question, or an incremental factor/anomaly?"
+- "For an anomaly: does it survive transaction costs, microcap exclusion, and the factor-zoo multiple-testing correction (t > 3)?"
+- "For a causal claim: is the identification credible, or is it a kitchen-sink panel regression with clustered SEs standing in for a design?"
+- "Are the magnitudes economically meaningful, not just statistically significant?"
 
 **Referee-pool weights.**
-- THEORY: 0.30
-- CREDIBILITY: 0.20
+- CREDIBILITY: 0.25
+- MEASUREMENT: 0.20
+- SKEPTIC: 0.20
+- THEORY: 0.15
 - STRUCTURAL: 0.15
-- MEASUREMENT: 0.15
-- POLICY: 0.10
-- SKEPTIC: 0.10
+- POLICY: 0.05
 
-**Table format override.** Footnotes and citations follow APSA Style Manual; tables typically use significance stars (* p<0.05, ** p<0.01, *** p<0.001 — note 0.05 floor differs from AEA convention).
+**Table format override.** Report clustered / Newey-West SEs as appropriate; for portfolio sorts report alphas and t-stats with the weighting scheme and breakpoints stated.
 
-### American Journal of Political Science (AJPS)
+### Journal of Financial Economics (JFE)
 
-**Short name:** `AJPS`
+**Short name:** `JFE`
 
-**Focus.** General political-science journal with strong methods orientation. AJPS is the methodologists' favourite among the top-3 — receptive to causal-inference, survey experiments, formal-empirical work, and methodological innovation alongside substantive contribution.
+**Focus.** Empirically-driven finance in the Rochester/Schwert tradition. Heavy in empirical asset pricing and corporate finance. Prizes robust, large-sample evidence and economic significance over methodological flash.
 
-**Bar.** "The method is at least as interesting as the substance." Not a methods-only journal, but methodologically novel papers compete favourably with merely-clean empirical work. AJPS Replication Policy (since 2015) is enforced — replication archive is mandatory at acceptance.
+**Bar.** A robust, well-identified empirical result with clear economic content. Skeptical of fragile findings that hinge on one specification.
 
 **Domain-referee adjustments.**
 - Contribution 30 → 30 (unchanged)
-- Lit positioning 25 → 25 (unchanged)
-- External validity 15 → 20 (AJPS expects engagement with whether the result generalises beyond the specific setting)
+- Substance 20 → 25 (economic content load-bearing)
+- External validity 15 → 20
 
 **Methods-referee adjustments.**
-- Identification 35 → 40 (the credibility bar is real)
-- Inference 20 → 20 (unchanged)
-- For `survey-experiment` papers: Manipulation checks and balance tables are mandatory in the manuscript; absence is a desk-level concern.
-- Replication 5 → 10 (AJPS replication policy)
+- Robustness 15 → 20 (JFE referees hammer robustness)
+- Identification 35 → 40
+- For asset pricing: Inference 20 → 25 (multiple testing, out-of-sample)
 
 **Typical concerns.**
-- "Is identification credible to a methodologist who has read the recent econometrics literature?"
-- "Is the design pre-registered? If not, why not?"
-- "Are the standard errors clustered at the right level, with the right type of clustering for the design?"
-- "Is the replication archive complete (data, code, README)?"
-- "Does the method scale to other contexts the paper gestures at?"
-
-**Referee-pool weights.**
-- CREDIBILITY: 0.30
-- MEASUREMENT: 0.20
-- STRUCTURAL: 0.15
-- THEORY: 0.15
-- SKEPTIC: 0.10
-- POLICY: 0.10
-
-**Table format override.** APSA Style; significance stars allowed (0.05/0.01/0.001 floor); regression tables typically include observations, R², and SE-clustering specification.
-
-### Journal of Politics (JOP)
-
-**Short name:** `JOP`
-
-**Focus.** Top-3 political-science journal alongside APSR and AJPS, with a slight tilt toward American politics and comparative politics. Publishes across all subfields; receptive to shorter, sharper papers ("research notes" track) alongside full articles.
-
-**Bar.** "A clear contribution to a substantive question that political scientists care about." Lower theoretical-novelty bar than APSR; lower methods-novelty bar than AJPS — but a higher *clarity-of-contribution* bar than either. The desk asks: "what specifically does this paper teach me?"
-
-**Domain-referee adjustments.**
-- Contribution 30 → 35 (clarity of contribution is the binding constraint)
-- Substance 20 → 25 (JOP rewards a tight argument over a broad one)
-- Fit 10 → 5 (JOP publishes broadly)
-
-**Methods-referee adjustments.**
-- Identification 35 → 35 (unchanged)
-- Robustness 15 → 20 (JOP referees frequently push back on robustness)
-
-**Typical concerns.**
-- "What specifically does this paper add that we didn't already know?"
-- "Is the argument tight, or is it three loosely-related claims?"
-- "Are the robustness checks responsive to obvious threats, or are they ritual?"
-- "Could this be a research note (8,000 words) instead of a full article?"
+- "Does the result replicate across subperiods, weighting schemes, and breakpoint choices?"
+- "Is it robust to standard controls and known factors, or does it vanish under FF5 + momentum?"
+- "Is the sample free of look-ahead and survivorship bias?"
+- "Economic significance: how big is this in basis points / dollars, net of costs?"
 
 **Referee-pool weights.**
 - SKEPTIC: 0.25
+- MEASUREMENT: 0.20
 - CREDIBILITY: 0.20
-- THEORY: 0.15
-- MEASUREMENT: 0.15
 - STRUCTURAL: 0.15
-- POLICY: 0.10
+- THEORY: 0.15
+- POLICY: 0.05
 
-**Table format override.** APSA Style; standard significance stars allowed.
+**Table format override.** Report both value- and equal-weighted results; NYSE breakpoints expected for sorts.
+
+### Review of Financial Studies (RFS)
+
+**Short name:** `RFS`
+
+**Focus.** Finance with a taste for methodological innovation, structural/dynamic models, and theory-empirics integration (Society for Financial Studies). More receptive to new methods and richer models than JFE.
+
+**Bar.** A novel method, model, or insight; willing to accept a narrower setting if the approach is genuinely innovative.
+
+**Domain-referee adjustments.**
+- Contribution 30 → 35
+- Substance 20 → 25
+
+**Methods-referee adjustments.**
+- If paper type is `structural`: Model spec 20 → 30, Parameter ID 30 → 35
+- If paper type is `reduced-form`: Identification 35 → 40
+- For asset pricing: Inference 20 → 25
+
+**Typical concerns.**
+- "What is methodologically or conceptually new here?"
+- "If structural: are the identifying restrictions credible and the counterfactuals disciplined by the data?"
+- "Does the empirical design exploit something others missed?"
+- "Are the asset-pricing tests robust to the factor zoo and out-of-sample?"
+
+**Referee-pool weights.**
+- STRUCTURAL: 0.25
+- THEORY: 0.20
+- CREDIBILITY: 0.20
+- MEASUREMENT: 0.15
+- SKEPTIC: 0.15
+- POLICY: 0.05
+
+**Table format override.** None specific.
+
+---
+
+## Accounting (Top-5)
+
+The five leading accounting journals. Across all of them the two recurring referee battlegrounds are **construct measurement validity** (earnings quality, accruals, disclosure, governance indices are proxies, not observables) and **identification / correlated omitted variables** (modern accounting referees treat "association dressed as causation" as a desk-level concern, and expect firm-and-time clustering). Archival empirical work typically resolves to `reduced-form` or `descriptive`; analytical-empirical pairings to `theory+empirics`; experimental work emphasizes internal validity and manipulation checks.
+
+### Journal of Accounting Research (JAR)
+
+**Short name:** `JAR`
+
+**Focus.** Chicago. Rigorous empirical/archival accounting — capital markets, disclosure, information economics. Among the highest methodological bars in the field.
+
+**Bar.** A clean research design on a question central to accounting/capital markets. Identification scrutiny is high.
+
+**Domain-referee adjustments.**
+- Contribution 30 → 35
+- External validity 15 → 20
+- Fit 10 → 5
+
+**Methods-referee adjustments.**
+- Identification 35 → 40
+- Inference 20 → 25 (correlated omitted variables, two-way clustering)
+
+**Typical concerns.**
+- "What is the identification? Is this an association dressed up as causation?"
+- "Is the construct (earnings quality, disclosure, etc.) measured validly?"
+- "Are standard errors clustered by firm *and* time where the design requires it?"
+- "Correlated omitted variables: what's the threat, and how is it addressed?"
+
+**Referee-pool weights.**
+- CREDIBILITY: 0.30
+- MEASUREMENT: 0.25
+- SKEPTIC: 0.15
+- STRUCTURAL: 0.15
+- THEORY: 0.10
+- POLICY: 0.05
+
+**Table format override.** State the clustering scheme; significance stars are conventional in accounting (note this differs from AEA no-stars policy).
+
+### Journal of Accounting and Economics (JAE)
+
+**Short name:** `JAE`
+
+**Focus.** Rochester/Wharton. Economics-based accounting — contracting, disclosure, positive accounting theory, executive compensation. Empirical work with explicit economic framing.
+
+**Bar.** An economically-grounded hypothesis backed by robust archival evidence.
+
+**Domain-referee adjustments.**
+- Substance 20 → 30 (economic framing is load-bearing)
+- Contribution 30 → 30
+
+**Methods-referee adjustments.**
+- Identification 35 → 40
+- Robustness 15 → 20
+
+**Typical concerns.**
+- "What economic theory generates this prediction?"
+- "Is the result robust to alternative measures and specifications?"
+- "Endogeneity of the governance/contracting variable: addressed or hand-waved?"
+- "Is the effect economically material?"
+
+**Referee-pool weights.**
+- CREDIBILITY: 0.25
+- MEASUREMENT: 0.20
+- THEORY: 0.20
+- SKEPTIC: 0.20
+- STRUCTURAL: 0.10
+- POLICY: 0.05
+
+**Table format override.** Significance stars conventional.
+
+### The Accounting Review (TAR)
+
+**Short name:** `TAR`
+
+**Focus.** American Accounting Association flagship. Broad — archival, experimental, and analytical accounting across financial, managerial, audit, and tax.
+
+**Bar.** A clear contribution to accounting knowledge with a design sound for its method (archival / experimental / analytical).
+
+**Domain-referee adjustments.**
+- Contribution 30 → 35
+- Fit 10 → 10 (broad, but expects clear accounting relevance)
+
+**Methods-referee adjustments.**
+- Identification 35 → 35 (archival)
+- Robustness 15 → 20
+- For experimental work: internal validity + manipulation checks are load-bearing
+
+**Typical concerns.**
+- "Is the contribution to *accounting* (not just finance/econ) clear?"
+- "For archival: identification and construct validity? For experimental: are manipulations clean and confounds controlled?"
+- "Are the results robust and economically/behaviorally meaningful?"
+- "Does the design match the theory being tested?"
+
+**Referee-pool weights.**
+- MEASUREMENT: 0.25
+- CREDIBILITY: 0.20
+- SKEPTIC: 0.20
+- THEORY: 0.15
+- STRUCTURAL: 0.15
+- POLICY: 0.05
+
+**Table format override.** Significance stars conventional.
+
+### Contemporary Accounting Research (CAR)
+
+**Short name:** `CAR`
+
+**Focus.** Canadian Academic Accounting Association flagship. Broad scope across accounting subfields and methods; receptive to archival, experimental, and analytical work.
+
+**Bar.** A solid, well-motivated contribution with rigorous execution.
+
+**Domain-referee adjustments.**
+- Contribution 30 → 30
+- External validity 15 → 20
+
+**Methods-referee adjustments.**
+- Identification 35 → 38
+- Robustness 15 → 20
+
+**Typical concerns.**
+- "Is the question well-motivated and the design rigorous?"
+- "Construct measurement and identification adequately defended?"
+- "Robustness to alternative specifications?"
+- "Generalizability beyond the sample?"
+
+**Referee-pool weights.**
+- CREDIBILITY: 0.25
+- MEASUREMENT: 0.25
+- SKEPTIC: 0.20
+- THEORY: 0.15
+- STRUCTURAL: 0.10
+- POLICY: 0.05
+
+**Table format override.** Significance stars conventional.
+
+### Review of Accounting Studies (RAST)
+
+**Short name:** `RAST`
+
+**Focus.** Empirical and analytical accounting with a valuation, disclosure, and forecasting emphasis. Receptive to analytical-empirical pairings.
+
+**Bar.** A sharp question in valuation/disclosure backed by credible empirics or a disciplined model.
+
+**Domain-referee adjustments.**
+- Contribution 30 → 33
+- Substance 20 → 25
+
+**Methods-referee adjustments.**
+- If paper type is `theory+empirics`: Model 20 → 28, Prediction sharpness 25 → 30
+- Identification 35 → 38
+
+**Typical concerns.**
+- "Is the valuation/disclosure question economically important?"
+- "If analytical + empirical: do the empirics test the model's sharp predictions?"
+- "Is measurement of the forecast/valuation constructs valid?"
+- "Identification and robustness adequate?"
+
+**Referee-pool weights.**
+- MEASUREMENT: 0.25
+- CREDIBILITY: 0.20
+- THEORY: 0.20
+- SKEPTIC: 0.15
+- STRUCTURAL: 0.15
+- POLICY: 0.05
+
+**Table format override.** Significance stars conventional.
 
 ---
 
@@ -328,14 +494,9 @@ The five profiles above are econ-specific. The **pipeline is field-agnostic** �
    - **Referee-pool weights** — the 6 dispositions are general enough to apply to any field. Re-weight based on what that journal's referees actually ask about. Weights must sum to 1.0.
    - **Table format** — any field-specific conventions (e.g., APA tables for psychology, Chicago-style footnotes for history, Vancouver citations for medicine).
 
-**For non-econ paper types.** The `methods-referee.md` paper-type branching uses `reduced-form / structural / theory+empirics / descriptive`. If your field uses different categories (e.g., biology: `observational / experimental / computational / review`; political science: `case-study / comparative / formal-model / survey`), edit `methods-referee.md` to add your field's paper types and their dimension weights. Keep the `reduced-form` / etc. branches for econ users.
+**Paper-type branching.** The `methods-referee.md` paper-type branching uses `reduced-form / structural / theory+empirics / descriptive` — which covers the econ, finance, and accounting work shipped here (empirical asset pricing and archival accounting resolve to `reduced-form`/`descriptive`; dynamic asset-pricing and analytical-empirical work to `structural`/`theory+empirics`). If you add a journal in a field with different categories, edit `methods-referee.md` to add those paper types and their dimension weights.
 
-**Examples for fields we don't yet ship** (to be filled in by adopters — we ship econ + political-science as concrete profiles; psych / sociology / public health are template-only):
-
-- `### Nature Human Behaviour (NHB)` — flagship interdisciplinary. Bar: broad impact + pre-registration + replication. Referee weights: MEASUREMENT high, CREDIBILITY high.
-- `### Psychological Science` — flagship psych. Bar: open-science compliance + theoretical contribution. Referee weights: CREDIBILITY high, MEASUREMENT high. Preregistration expected.
-- `### American Journal of Sociology (AJS)` — top sociology. Bar: theoretical contribution + careful argument. Referee weights: THEORY medium, SKEPTIC medium, MEASUREMENT medium.
-- `### PNAS` — multi-disciplinary. Bar: generalizability + public interest. Referee weights: POLICY high, SKEPTIC high.
+**Adding more journals.** To add a second-tier or field journal you also submit to (e.g., `JFQA`, `RED`, `AEJ:*`, `Management Science`), copy `templates/journal-profile-template.md`, fill the schema, and append a section. Read the last ~6 months of the journal's table of contents to calibrate Focus/Bar, and distill 3–5 recurring referee questions into Typical concerns. Referee-pool weights must sum to 1.0.
 
 ---
 
